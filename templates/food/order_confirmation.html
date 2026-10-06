@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="confirm-card">
+        <div class="confirm-icon {{ 'cancelled' if order.status == 'cancelled' else '' }}">
+          <i class="bi bi-check-lg"></i>
+        </div>
+
+        <h1>Order Received!</h1>
+        <p class="text-muted">Thanks, {{ order.customer_name }}. We're preparing your order.</p>
+
+        <div class="ref-box">
+          <span>Reference</span>
+          <strong>{{ order.reference }}</strong>
+        </div>
+
+        <div class="order-items">
+          {% for item in order.items %}
+            <div class="order-item-row">
+              <span>{{ item.quantity }} × {{ item.name }}</span>
+              <strong>{{ item.line_total|money }}</strong>
+            </div>
+          {% endfor %}
+          <div class="order-item-row">
+            <span>Subtotal</span><strong>{{ order.subtotal|money }}</strong>
+          </div>
+          {% if order.delivery_fee > 0 %}
+          <div class="order-item-row">
+            <span>Delivery</span><strong>{{ order.delivery_fee|money }}</strong>
+          </div>
+          {% endif %}
+          <div class="order-item-row total">
+            <span>Total</span><strong>{{ order.total|money }}</strong>
+          </div>
+        </div>
+
+        <ul class="detail-list mt-4">
+          <li><span>Order Type</span><strong>{{ order.order_type|capitalize }}</strong></li>
+          {% if order.order_type == 'delivery' %}
+            <li><span>Address</span><strong>{{ order.delivery_address }}</strong></li>
+          {% endif %}
+          <li><span>Status</span>
+            <strong class="status-{{ order.status }}">{{ order.status|replace('_',' ')|capitalize }}</strong>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2 flex-wrap mt-4 justify-content-center">
+          <a href="{{ url_for('menu') }}" class="btn btn-primary">Order More</a>
+          <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

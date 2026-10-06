@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Services — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h1 class="section-title mb-0">Appointment Services</h1>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+      <a href="{{ url_for('admin_service_new') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> New Service
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    {% for service in services %}
+      <div class="col-md-6 col-lg-4">
+        <div class="service-card {{ '' if service.active else 'inactive' }}">
+          <div class="d-flex justify-content-between align-items-start">
+            <h5 class="mb-1">{{ service.name }}</h5>
+            <span class="status-pill status-{{ 'confirmed' if service.active else 'cancelled' }}">
+              {{ 'Active' if service.active else 'Inactive' }}
+            </span>
+          </div>
+          <p class="text-muted small">{{ service.description or 'No description.' }}</p>
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <span class="badge-soft">{{ service.duration }} min</span>
+            <span class="badge-soft">{{ service.price|money }}</span>
+            <span class="badge-soft">{{ service.appointments|length }} bookings</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_service_edit', service_id=service.id) }}"
+               class="btn btn-sm btn-outline-secondary flex-grow-1">Edit</a>
+            <form method="POST" action="{{ url_for('admin_service_delete', service_id=service.id) }}"
+                  onsubmit="return confirm('Delete this service?');">
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-muted">No services yet. <a href="{{ url_for('admin_service_new') }}">Create one</a>.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

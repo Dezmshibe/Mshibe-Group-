@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Appointments — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h1 class="section-title mb-0">Appointments</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+  </div>
+
+  <form method="GET" class="filter-bar">
+    <div>
+      <label class="form-label small mb-1">Status</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All</option>
+        {% for s in ['pending','confirmed','completed','cancelled'] %}
+          <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label small mb-1">Date</label>
+      <input type="date" name="date" class="form-control form-control-sm" value="{{ date_filter }}">
+    </div>
+    <div class="d-flex gap-2 align-items-end">
+      <button class="btn btn-primary btn-sm">Filter</button>
+      <a href="{{ url_for('admin_appointments') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table align-middle admin-table">
+      <thead>
+        <tr>
+          <th>Ref</th>
+          <th>Client</th>
+          <th>Service</th>
+          <th>Date &amp; Time</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in appointments %}
+          <tr>
+            <td><code>{{ a.reference }}</code></td>
+            <td>
+              <strong>{{ a.client_name }}</strong><br>
+              <span class="small text-muted">{{ a.client_email }}</span>
+              {% if a.client_phone %}<br><span class="small text-muted">{{ a.client_phone }}</span>{% endif %}
+            </td>
+            <td>
+              {{ a.service.name }}<br>
+              <span class="small text-muted">{{ a.service.duration }} min</span>
+            </td>
+            <td>
+              {{ a.date|fmt_date }}<br>
+              <span class="small text-muted">{{ a.time|fmt_time }}</span>
+            </td>
+            <td><span class="status-pill status-{{ a.status }}">{{ a.status|capitalize }}</span></td>
+            <td class="text-end">
+              <div class="d-flex gap-1 justify-content-end flex-wrap">
+                {% for s in ['confirmed','completed','cancelled'] %}
+                  {% if a.status != s %}
+                    <form method="POST" action="{{ url_for('admin_appt_status', appt_id=a.id) }}">
+                      <input type="hidden" name="status" value="{{ s }}">
+                      <button class="btn btn-sm btn-outline-secondary">{{ s|capitalize }}</button>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+                <form method="POST" action="{{ url_for('admin_appt_delete', appt_id=a.id) }}"
+                      onsubmit="return confirm('Delete?');">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+              {% if a.notes %}<div class="small text-muted mt-2 text-start"><em>{{ a.notes }}</em></div>{% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No appointments found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

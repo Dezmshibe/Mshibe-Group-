@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}About — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>About Us</h1>
+    <p>Two services, one trusted name.</p>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <h2 class="section-title">Our Story</h2>
+      <p>{{ settings.about_text }}</p>
+      <p>
+        Founded with a simple goal — to bring convenient, quality services
+        closer to our community — Mshibe Group now serves customers through
+        two core offerings: freshly prepared food (delivered or for pickup)
+        and professional appointment-based services.
+      </p>
+
+      <div class="row g-4 mt-4">
+        <div class="col-sm-6">
+          <div class="value-card">
+            <i class="bi bi-heart"></i>
+            <h5>Made with care</h5>
+            <p>Every meal and every session is delivered with attention to detail.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="value-card">
+            <i class="bi bi-clock-history"></i>
+            <h5>On time, every time</h5>
+            <p>We respect your schedule — from food deliveries to appointments.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="value-card">
+            <i class="bi bi-people"></i>
+            <h5>Community first</h5>
+            <p>Proudly rooted in our neighbourhood — serving the people around us.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="value-card">
+            <i class="bi bi-award"></i>
+            <h5>Quality guaranteed</h5>
+            <p>We stand behind everything we serve and every service we offer.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 p-4 border rounded-3">
+        <h4>Explore Mshibe Group</h4>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <a class="btn btn-outline-dark" href="{{ url_for('corporate_service', slug='technology') }}">Technology</a>
+          <a class="btn btn-outline-dark" href="{{ url_for('corporate_service', slug='media-marketing') }}">Media &amp; Marketing</a>
+          <a class="btn btn-outline-dark" href="{{ url_for('corporate_service', slug='commerce') }}">Commerce</a>
+          <a class="btn btn-outline-dark" href="{{ url_for('corporate_service', slug='business-solutions') }}">Business Solutions</a>
+          <a class="btn btn-dark" href="{{ url_for('food_platform') }}">Chowza</a>
+          <a class="btn btn-dark" href="{{ url_for('appointment_platform') }}">Appoint</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="info-panel">
+        <h4>Contact</h4>
+        <ul class="contact-list">
+          {% if settings.phone %}<li><i class="bi bi-telephone"></i> {{ settings.phone }}</li>{% endif %}
+          {% if settings.email %}<li><i class="bi bi-envelope"></i> {{ settings.email }}</li>{% endif %}
+          {% if settings.address %}<li><i class="bi bi-geo-alt"></i> {{ settings.address }}</li>{% endif %}
+        </ul>
+        <hr>
+        <h5>Opening Hours</h5>
+        <p class="mb-0">{{ settings.open_time }} – {{ settings.close_time }}</p>
+        <p class="small text-muted mt-2">
+          {% set names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+          {% for i in range(7) %}
+            <span class="day-chip {{ 'on' if i in settings.working_days_list else 'off' }}">{{ names[i] }}</span>
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

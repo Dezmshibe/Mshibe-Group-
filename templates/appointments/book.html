@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Book an Appointment — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Book an Appointment</h1>
+    <p>Pick a service, a date, and a time that works for you.</p>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <form method="POST" action="{{ url_for('appointments_book') }}"
+            id="booking-form" class="card-form">
+        <div class="row g-4">
+
+          <div class="col-md-6">
+            <label class="form-label">Service <span class="req">*</span></label>
+            <select name="service_id" id="service_id" class="form-select" required>
+              <option value="">Select a service…</option>
+              {% for service in services %}
+                <option value="{{ service.id }}"
+                  {% if (selected_service and selected_service == service.id)
+                        or (form and form.get('service_id')|int == service.id) %}selected{% endif %}>
+                  {{ service.name }} — {{ service.duration }} min
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Date <span class="req">*</span></label>
+            <input type="date" name="date" id="date" class="form-control"
+                   value="{{ form.get('date') if form else '' }}" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Available Times <span class="req">*</span></label>
+            <div id="slots" class="slot-grid"></div>
+            <p id="slot-msg" class="slot-msg">Select a service and date to see available times.</p>
+            <input type="hidden" name="time" id="time"
+                   value="{{ form.get('time') if form else '' }}">
+          </div>
+
+          <div class="col-12"><hr class="my-1"></div>
+
+          <div class="col-md-6">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" name="client_name" class="form-control"
+                   value="{{ form.get('client_name') if form else '' }}" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Email <span class="req">*</span></label>
+            <input type="email" name="client_email" class="form-control"
+                   value="{{ form.get('client_email') if form else '' }}" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="client_phone" class="form-control"
+                   value="{{ form.get('client_phone') if form else '' }}">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Notes</label>
+            <textarea name="notes" rows="3" class="form-control"
+                      placeholder="Anything we should know?">{{ form.get('notes') if form else '' }}</textarea>
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary btn-lg w-100">
+              <i class="bi bi-check2-circle"></i> Confirm Booking
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}

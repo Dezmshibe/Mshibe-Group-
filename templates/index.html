@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.company_name }} — Building What Comes Next{% endblock %}
+
+{% block content %}
+<section class="mega-hero">
+  <div class="hero-grid-bg"></div>
+  <div class="container-fluid px-4 px-lg-5 position-relative">
+    <div class="row align-items-end g-5">
+      <div class="col-lg-8">
+        <p class="eyebrow">MSHIBE GROUP <span></span> SOUTH AFRICA</p>
+        <h1>Building<br><em>what comes next.</em></h1>
+        <p class="mega-lead">We build businesses, brands and digital experiences designed to turn ideas into opportunities.</p>
+        <div class="hero-actions">
+          <a href="#businesses" class="hero-button hero-button-dark">Explore Mshibe Group <i class="bi bi-arrow-down-right"></i></a>
+          <a href="{{ url_for('contact') }}" class="hero-text-link">Work with us <i class="bi bi-arrow-up-right"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="hero-orbit" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="orbit-core">M</div><div class="orbit-dot dot-one"></div><div class="orbit-dot dot-two"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mission-section" id="about">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4"><p class="eyebrow dark">01 <span></span> OUR MISSION</p></div>
+      <div class="col-lg-8"><h2>We believe the next generation of African businesses should be <span>bold, useful and built to last.</span></h2><p class="section-copy">Mshibe Group brings together entrepreneurship, technology, media and practical business solutions under one growing group. We create our own ventures, develop digital products and help businesses move forward.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="businesses-section" id="businesses">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row"><div><p class="eyebrow dark">02 <span></span> WHAT WE BUILD</p><h2>Our businesses</h2></div><p>Different industries. One ambition: create things that matter.</p></div>
+    <div class="business-grid">
+      <article class="business-card business-card-large"><span class="card-number">01</span><div><span class="business-icon"><i class="bi bi-cpu"></i></span><h3>Technology</h3><p>Digital products and systems that make everyday business simpler, faster and more connected.</p></div><a href="{{ url_for('corporate_service', slug='technology') }}">Explore <i class="bi bi-arrow-up-right"></i></a></article>
+      <article class="business-card business-card-dark"><span class="card-number">02</span><div><span class="business-icon"><i class="bi bi-broadcast"></i></span><h3>Media & Marketing</h3><p>Brands, content and digital growth strategies built for attention and conversion.</p></div><a href="{{ url_for('corporate_service', slug='media-marketing') }}">Explore <i class="bi bi-arrow-up-right"></i></a></article>
+      <article class="business-card business-card-accent"><span class="card-number">03</span><div><span class="business-icon"><i class="bi bi-shop"></i></span><h3>Commerce</h3><p>Technology-enabled experiences that connect customers with local businesses.</p></div><a href="{{ url_for('corporate_service', slug='commerce') }}">Explore <i class="bi bi-arrow-up-right"></i></a></article>
+      <article class="business-card"><span class="card-number">04</span><div><span class="business-icon"><i class="bi bi-lightbulb"></i></span><h3>Business Solutions</h3><p>Practical tools and services that help ambitious businesses operate and grow.</p></div><a href="{{ url_for('corporate_service', slug='business-solutions') }}">Explore <i class="bi bi-arrow-up-right"></i></a></article>
+    </div>
+  </div>
+</section>
+
+<section class="innovation-section" id="innovation">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6"><p class="eyebrow">03 <span></span> INNOVATION</p><h2>Ideas are only the beginning.</h2><p>We turn ideas into products, platforms and experiences. From commerce and appointment technology to digital media, Mshibe Group is building a portfolio of ventures with room to grow.</p><a href="{{ url_for('about') }}" class="hero-button hero-button-light">Discover our story <i class="bi bi-arrow-up-right"></i></a></div>
+      <div class="col-lg-6"><div class="innovation-panel"><div class="panel-line"></div><div class="panel-word">CREATE<br><span>BUILD</span><br>GROW</div><div class="panel-caption">Mshibe Group / 2026 →</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="services-section">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row"><div><p class="eyebrow dark">04 <span></span> IN MARKET TODAY</p><h2>Built for real people.</h2></div><p>Some of our experiences are already live. Explore what you can use today.</p></div>
+    <div class="live-grid">
+      <a class="live-card" href="{{ url_for('food_platform') }}"><div class="live-number">01</div><div><span>Commerce experience</span><h3>Chowza</h3><p>Browse a menu, build an order and checkout in one simple flow.</p></div><i class="bi bi-arrow-up-right"></i></a>
+      <a class="live-card" href="{{ url_for('appointment_platform') }}"><div class="live-number">02</div><div><span>Service experience</span><h3>Appoint</h3><p>Discover services and choose a time that works for you.</p></div><i class="bi bi-arrow-up-right"></i></a>
+    </div>
+  </div>
+</section>
+
+
+<section class="closing-section">
+  <div class="container-fluid px-4 px-lg-5"><p class="eyebrow">05 <span></span> LET'S BUILD</p><h2>Have an idea?<br><em>Let's make it real.</em></h2><a href="{{ url_for('contact') }}" class="hero-button hero-button-light">Start a conversation <i class="bi bi-arrow-up-right"></i></a></div>
+</section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmed — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="confirm-card">
+        <div class="confirm-icon {{ 'cancelled' if appointment.status == 'cancelled' else '' }}">
+          <i class="bi {{ 'bi-x-lg' if appointment.status == 'cancelled' else 'bi-check-lg' }}"></i>
+        </div>
+
+        {% if appointment.status == 'cancelled' %}
+          <h1>Appointment Cancelled</h1>
+          <p class="text-muted">This booking is no longer active.</p>
+        {% else %}
+          <h1>Booking Confirmed</h1>
+          <p class="text-muted">We look forward to seeing you.</p>
+        {% endif %}
+
+        <div class="ref-box">
+          <span>Reference</span>
+          <strong>{{ appointment.reference }}</strong>
+        </div>
+
+        <ul class="detail-list">
+          <li><span>Service</span><strong>{{ appointment.service.name }}</strong></li>
+          <li><span>Date</span><strong>{{ appointment.date|fmt_date }}</strong></li>
+          <li><span>Time</span><strong>{{ appointment.time|fmt_time }}</strong></li>
+          <li><span>Duration</span><strong>{{ appointment.service.duration }} minutes</strong></li>
+          <li><span>Name</span><strong>{{ appointment.client_name }}</strong></li>
+          <li><span>Email</span><strong>{{ appointment.client_email }}</strong></li>
+          <li><span>Status</span>
+            <strong class="status-{{ appointment.status }}">{{ appointment.status|capitalize }}</strong>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2 flex-wrap mt-4 justify-content-center">
+          <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back Home</a>
+          <a href="{{ url_for('appointments_book') }}" class="btn btn-primary">Book Another</a>
+          {% if appointment.status not in ('cancelled', 'completed') %}
+            <form method="POST" action="{{ url_for('appointment_cancel', reference=appointment.reference) }}"
+                  onsubmit="return confirm('Cancel this appointment?');">
+              <button class="btn btn-outline-danger">Cancel</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

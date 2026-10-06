@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ service.title }} — {{ settings.company_name }}{% endblock %}
+{% block content %}
+<section class="platform-hero">
+  <div class="container-fluid px-4 px-lg-5">
+    <p class="eyebrow dark">MSHIBE GROUP <span></span> {{ service.eyebrow }}</p>
+    <div class="platform-hero-grid">
+      <div>
+        <div class="mb-3"><span class="badge-soft">{{ service.number }}</span></div>
+        <h1>{{ service.title }}<br><em>built for what comes next.</em></h1>
+        <p class="platform-lead">{{ service.intro }}</p>
+        <div class="hero-actions">
+          <a href="{{ url_for('contact') }}" class="hero-button hero-button-dark">Talk to us <i class="bi bi-arrow-up-right"></i></a>
+          <a href="{{ url_for('index') }}#businesses" class="hero-text-link">Back to businesses <i class="bi bi-arrow-up-right"></i></a>
+        </div>
+      </div>
+      <div class="platform-number">{{ service.number }}</div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-intro">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4"><p class="eyebrow dark">01 <span></span> WHAT WE DO</p></div>
+      <div class="col-lg-8"><h2>Practical work. <span>Clear outcomes.</span></h2><p class="section-copy">{{ service.body }}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-features">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row"><div><p class="eyebrow dark">02 <span></span> CAPABILITIES</p><h2>How we can help.</h2></div><p>Explore the core areas that make up this part of Mshibe Group.</p></div>
+    <div class="feature-grid">
+      {% for title, copy in service.capabilities %}
+      <article><span>{{ '%02d'|format(loop.index) }}</span><i class="bi bi-{{ service.icon }}"></i><h3>{{ title }}</h3><p>{{ copy }}</p></article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="platform-cta">
+  <div class="container-fluid px-4 px-lg-5">
+    <p class="eyebrow">03 <span></span> KEEP EXPLORING</p>
+    <h2>See what else<br><em>Mshibe Group is building.</em></h2>
+    <div class="hero-actions">
+      <a href="{{ url_for('food_platform') }}" class="hero-button hero-button-light">Explore Chowza <i class="bi bi-arrow-up-right"></i></a>
+      <a href="{{ url_for('appointment_platform') }}" class="hero-button hero-button-light">Explore Appoint <i class="bi bi-arrow-up-right"></i></a>
+      <a href="{{ url_for('contact') }}" class="hero-text-link">Contact Mshibe Group <i class="bi bi-arrow-up-right"></i></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

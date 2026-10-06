@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Orders — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h1 class="section-title mb-0">Orders</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+  </div>
+
+  <form method="GET" class="filter-bar">
+    <div>
+      <label class="form-label small mb-1">Status</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All</option>
+        {% for s in ['pending','preparing','ready','out_for_delivery','completed','cancelled'] %}
+          <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>
+            {{ s|replace('_',' ')|capitalize }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="d-flex gap-2 align-items-end">
+      <button class="btn btn-primary btn-sm">Filter</button>
+      <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table align-middle admin-table">
+      <thead>
+        <tr>
+          <th>Ref</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+          <tr>
+            <td><code>{{ o.reference }}</code></td>
+            <td>
+              <strong>{{ o.customer_name }}</strong><br>
+              <span class="small text-muted">{{ o.customer_email }}</span>
+              {% if o.customer_phone %}<br><span class="small text-muted">{{ o.customer_phone }}</span>{% endif %}
+            </td>
+            <td>
+              <ul class="item-mini">
+                {% for it in o.items %}
+                  <li>{{ it.quantity }}× {{ it.name }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td><strong>{{ o.total|money }}</strong></td>
+            <td>
+              <span class="badge-soft">{{ o.order_type }}</span>
+              {% if o.order_type == 'delivery' %}
+                <div class="small text-muted mt-1">{{ o.delivery_address }}</div>
+              {% endif %}
+            </td>
+            <td><span class="status-pill status-{{ o.status }}">{{ o.status|replace('_',' ') }}</span></td>
+            <td class="text-end">
+              <div class="d-flex gap-1 justify-content-end flex-wrap">
+                {% for s in ['preparing','ready','out_for_delivery','completed','cancelled'] %}
+                  {% if o.status != s %}
+                    <form method="POST" action="{{ url_for('admin_order_status', order_id=o.id) }}">
+                      <input type="hidden" name="status" value="{{ s }}">
+                      <button class="btn btn-sm btn-outline-secondary">
+                        {{ s|replace('_',' ')|capitalize }}
+                      </button>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+                <form method="POST" action="{{ url_for('admin_order_delete', order_id=o.id) }}"
+                      onsubmit="return confirm('Delete this order?');">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No orders found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

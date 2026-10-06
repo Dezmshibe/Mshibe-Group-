@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if service else 'New' }} Service — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <h1 class="section-title">{{ 'Edit Service' if service else 'New Service' }}</h1>
+
+      <form method="POST" class="card-form">
+        <div class="mb-3">
+          <label class="form-label">Name <span class="req">*</span></label>
+          <input type="text" name="name" class="form-control" required
+                 value="{{ service.name if service else '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea name="description" rows="3"
+                    class="form-control">{{ service.description if service else '' }}</textarea>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" name="duration" min="5" step="5" class="form-control"
+                   value="{{ service.duration if service else 30 }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Price</label>
+            <input type="number" name="price" min="0" step="0.01" class="form-control"
+                   value="{{ service.price if service else 0 }}">
+          </div>
+        </div>
+
+        <div class="form-check mt-4">
+          <input class="form-check-input" type="checkbox" name="active" id="active"
+                 {% if not service or service.active %}checked{% endif %}>
+          <label class="form-check-label" for="active">Available for booking</label>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button class="btn btn-primary">{{ 'Save' if service else 'Create' }}</button>
+          <a href="{{ url_for('admin_services') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

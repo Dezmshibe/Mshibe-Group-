@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Menu — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Our Menu</h1>
+    <p>Fresh, delicious meals — order for delivery or pickup.</p>
+  </div>
+</section>
+
+<section class="container py-4">
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('food_platform') }}">About Chowza</a>
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('appointment_platform') }}">Explore Appoint</a>
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('contact') }}">Contact Mshibe Group</a>
+  </div>
+  <div class="category-tabs">
+    <a href="{{ url_for('menu') }}" class="cat-pill {{ 'active' if not selected_cat else '' }}">All</a>
+    {% for cat in categories %}
+      <a href="{{ url_for('menu', category=cat.id) }}"
+         class="cat-pill {{ 'active' if selected_cat == cat.id else '' }}">
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container pb-5">
+  <div class="row g-4">
+    {% for item in items %}
+      <div class="col-sm-6 col-lg-4">
+        <div class="dish-card">
+          <div class="dish-image">
+            {% if item.image_url %}
+              <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            {% else %}
+              <div class="dish-placeholder"><i class="bi bi-egg-fried"></i></div>
+            {% endif %}
+            {% if item.featured %}<span class="dish-badge">Popular</span>{% endif %}
+          </div>
+          <div class="dish-body">
+            <h5>{{ item.name }}</h5>
+            <p class="dish-desc">{{ item.description }}</p>
+            <div class="dish-footer">
+              <span class="dish-price">{{ item.price|money }}</span>
+              <form method="POST" action="{{ url_for('cart_add', item_id=item.id) }}" class="add-form">
+                <button class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12 text-center py-5">
+        <p class="text-muted">No items available in this category.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — {{ settings.company_name }}
+<div class="container py-4"><div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-dark btn-sm" href="{{ url_for('index') }}">Mshibe Group Home</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('contact') }}">Contact</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('about') }}">About</a></div></div>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p>How Mshibe Group handles information submitted through this website.</p>
+  </div>
+</section>
+
+<section class="container py-5 legal-page">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <p><strong>Last updated:</strong> 6 October 2026</p>
+      <h2>1. Information we may collect</h2>
+      <p>Depending on the feature you use, the website may collect information you voluntarily provide, such as your name, email address, telephone number, delivery address, appointment details, order details, and messages submitted through contact forms.</p>
+
+      <h2>2. How we use information</h2>
+      <p>Information may be used to provide and demonstrate requested services, process food orders or appointment requests, respond to enquiries, maintain the website, improve our products, and protect the website from misuse.</p>
+
+      <h2>3. Demo experiences</h2>
+      <p>The Food and Appointments areas may operate as demonstrations of Mshibe Group products. Information entered into a demo may be stored by the application for demonstration and testing purposes. Please do not submit unnecessary sensitive or confidential information.</p>
+
+      <h2>4. Sharing information</h2>
+      <p>We do not sell personal information. Information may be shared with service providers or technology providers where reasonably necessary to operate the website or provide a requested service, or where required by law.</p>
+
+      <h2>5. Security</h2>
+      <p>We take reasonable steps to protect information handled through the website. No internet-based service can guarantee absolute security.</p>
+
+      <h2>6. Cookies and session data</h2>
+      <p>The website may use essential session data and similar technologies to keep features such as shopping carts, logins, and website functionality working. We may introduce additional analytics or functionality as the website develops.</p>
+
+      <h2>7. Your choices</h2>
+      <p>You can contact us to ask questions about information submitted through the website or to request assistance with your information, subject to applicable legal requirements.</p>
+
+      <h2>8. Contact</h2>
+      <p>For privacy questions, contact <a href="mailto:MshibeGroup@gmail.com">MshibeGroup@gmail.com</a>.</p>
+
+      <p class="text-muted mt-5">This policy is a general website privacy policy and may be expanded as Mshibe Group adds production services, analytics, payment providers, or other third-party integrations.</p>
+    </div>
+  </div>
+</section>
+
+<div class="container py-4"><div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-dark btn-sm" href="{{ url_for('index') }}">Mshibe Group Home</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('contact') }}">Contact</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('about') }}">About</a></div></div>
+{% endblock %}

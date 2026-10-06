@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }} — Appoint{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow dark">APPOINT <span></span> SERVICE</p>
+    <h1>{{ service.name }}</h1>
+    <p>{{ service.description }}</p>
+  </div>
+</section>
+<section class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <h2 class="section-title">About this service</h2>
+      <p class="lead">{{ service.description }}</p>
+      <p>This service is delivered through Appoint, Mshibe Group's appointment-booking experience. Choose a suitable date and available time, then confirm your details.</p>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <a href="{{ url_for('appointments_book', service=service.id) }}" class="btn btn-primary"><i class="bi bi-calendar-plus"></i> Book this service</a>
+        <a href="{{ url_for('appointments_index') }}" class="btn btn-outline-dark">View all services</a>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="info-panel">
+        <div class="service-icon mb-3"><i class="bi bi-calendar2-check"></i></div>
+        <h4>{{ service.name }}</h4>
+        <hr>
+        <p><i class="bi bi-clock"></i> {{ service.duration }} minutes</p>
+        <p class="mb-0"><i class="bi bi-tag"></i> {% if service.price and service.price > 0 %}{{ service.price|money }}{% else %}Free{% endif %}</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

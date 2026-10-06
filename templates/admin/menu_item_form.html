@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if item else 'New' }} Menu Item — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <h1 class="section-title">{{ 'Edit Menu Item' if item else 'New Menu Item' }}</h1>
+
+      <form method="POST" class="card-form">
+        <div class="mb-3">
+          <label class="form-label">Category <span class="req">*</span></label>
+          <select name="category_id" class="form-select" required>
+            <option value="">Choose…</option>
+            {% for c in categories %}
+              <option value="{{ c.id }}"
+                {% if item and item.category_id == c.id %}selected{% endif %}>
+                {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Name <span class="req">*</span></label>
+          <input type="text" name="name" class="form-control" required
+                 value="{{ item.name if item else '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea name="description" rows="3"
+                    class="form-control">{{ item.description if item else '' }}</textarea>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Price</label>
+            <input type="number" name="price" step="0.01" min="0" class="form-control"
+                   value="{{ item.price if item else 0 }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Image URL</label>
+            <input type="url" name="image_url" class="form-control"
+                   value="{{ item.image_url if item else '' }}"
+                   placeholder="https://…">
+          </div>
+        </div>
+
+        <div class="form-check mt-4">
+          <input class="form-check-input" type="checkbox" name="available" id="available"
+                 {% if not item or item.available %}checked{% endif %}>
+          <label class="form-check-label" for="available">Available for ordering</label>
+        </div>
+
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="featured" id="featured"
+                 {% if item and item.featured %}checked{% endif %}>
+          <label class="form-check-label" for="featured">Feature on homepage</label>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button class="btn btn-primary">{{ 'Save' if item else 'Create' }}</button>
+          <a href="{{ url_for('admin_menu') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Terms & Conditions — {{ settings.company_name }}
+<div class="container py-4"><div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-dark btn-sm" href="{{ url_for('index') }}">Mshibe Group Home</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('contact') }}">Contact</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('about') }}">About</a></div></div>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Terms &amp; Conditions</h1>
+    <p>The terms that apply when you use Mshibe Group services and website.</p>
+  </div>
+</section>
+
+<section class="container py-5 legal-page">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <p><strong>Last updated:</strong> 6 October 2026</p>
+      <h2>1. About these terms</h2>
+      <p>These Terms &amp; Conditions govern your use of the Mshibe Group website and the Food and Appointments demo experiences made available through it. By using the website, you agree to these terms.</p>
+
+      <h2>2. Website and demo services</h2>
+      <p>Mshibe Group may provide demonstration versions of food ordering, appointment booking, and other digital experiences. Demo features may be changed, suspended, or removed as the products are developed.</p>
+      <p>Information entered into a demo should be accurate. Do not submit sensitive information that is not required for the experience.</p>
+
+      <h2>3. Food ordering</h2>
+      <p>Where the Food experience is available as a demo, menu items, prices, availability, delivery information, and order statuses are examples and may not represent a live commercial order. An order submitted through a demo should not be treated as a confirmed purchase unless Mshibe Group expressly confirms otherwise.</p>
+
+      <h2>4. Appointments</h2>
+      <p>Where the Appointments experience is available as a demo, services, prices, availability, and booking confirmations may be illustrative. A demo appointment should not be treated as a confirmed real-world appointment unless expressly confirmed by the relevant service provider.</p>
+
+      <h2>5. Acceptable use</h2>
+      <p>You agree not to misuse the website, attempt to gain unauthorised access, interfere with its operation, upload malicious content, or use the services for unlawful purposes.</p>
+
+      <h2>6. Intellectual property</h2>
+      <p>The Mshibe Group name, logo, original website content, designs, software, and other materials are owned by or used with permission by Mshibe Group unless stated otherwise. You may not reproduce or commercially exploit them without permission.</p>
+
+      <h2>7. Availability and changes</h2>
+      <p>We aim to keep the website available and accurate, but we do not guarantee uninterrupted availability or that every feature will always be error-free. We may update these terms and the services from time to time.</p>
+
+      <h2>8. Contact</h2>
+      <p>Questions about these terms can be sent to <a href="mailto:MshibeGroup@gmail.com">MshibeGroup@gmail.com</a>.</p>
+
+      <p class="text-muted mt-5">These terms are general website terms and are not a substitute for legal advice. Mshibe Group may update them as its products and services develop.</p>
+    </div>
+  </div>
+</section>
+
+<div class="container py-4"><div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-dark btn-sm" href="{{ url_for('index') }}">Mshibe Group Home</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('contact') }}">Contact</a><a class="btn btn-outline-dark btn-sm" href="{{ url_for('about') }}">About</a></div></div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Your Cart — {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Your Cart</h1>
+    <p>Review your order before checking out.</p>
+  </div>
+</section>
+
+<section class="container py-5">
+  {% if items %}
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <div class="cart-card">
+          {% for row in items %}
+            <div class="cart-row">
+              <div class="cart-info">
+                <h5>{{ row.item.name }}</h5>
+                <p class="text-muted small mb-0">{{ row.item.price|money }} each</p>
+              </div>
+              <form method="POST" action="{{ url_for('cart_update', item_id=row.item.id) }}"
+                    class="cart-qty">
+                <input type="number" name="qty" value="{{ row.qty }}" min="0"
+                       class="form-control form-control-sm" onchange="this.form.submit()">
+              </form>
+              <div class="cart-line">{{ row.line_total|money }}</div>
+              <form method="POST" action="{{ url_for('cart_remove', item_id=row.item.id) }}">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="summary-card">
+          <h4>Checkout</h4>
+
+          <form method="POST" action="{{ url_for('checkout') }}" id="checkout-form">
+            <div class="mb-3">
+              <label class="form-label">Order Type</label>
+              <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="order_type" id="t-delivery"
+                       value="delivery" checked>
+                <label class="btn btn-outline-primary" for="t-delivery">
+                  <i class="bi bi-truck"></i> Delivery
+                </label>
+                <input type="radio" class="btn-check" name="order_type" id="t-pickup"
+                       value="pickup">
+                <label class="btn btn-outline-primary" for="t-pickup">
+                  <i class="bi bi-shop"></i> Pickup
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Name <span class="req">*</span></label>
+              <input type="text" name="customer_name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email <span class="req">*</span></label>
+              <input type="email" name="customer_email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="tel" name="customer_phone" class="form-control">
+            </div>
+
+            <div class="mb-3" id="address-group">
+              <label class="form-label">Delivery Address <span class="req">*</span></label>
+              <input type="text" name="delivery_address" id="delivery_address"
+                     class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Notes</label>
+              <textarea name="notes" rows="2" class="form-control"
+                        placeholder="Any special instructions?"></textarea>
+            </div>
+
+            <ul class="summary-list">
+              <li><span>Subtotal</span><strong>{{ subtotal|money }}</strong></li>
+              <li id="delivery-line">
+                <span>Delivery Fee</span><strong>{{ delivery_fee|money }}</strong>
+              </li>
+              <li class="total-line">
+                <span>Total</span><strong id="total-value">{{ (subtotal + delivery_fee)|money }}</strong>
+              </li>
+            </ul>
+
+            <button class="btn btn-primary btn-lg w-100 mt-3">
+              <i class="bi bi-bag-check"></i> Place Order
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="bi bi-bag"></i>
+      <h3>Your cart is empty</h3>
+      <p class="text-muted">Add some delicious items from our menu.</p>
+      <a href="{{ url_for('menu') }}" class="btn btn-primary">Browse Menu</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const subtotal = {{ subtotal or 0 }};
+  const deliveryFee = {{ delivery_fee or 0 }};
+  const currency = "{{ settings.currency_symbol }}";
+
+  document.querySelectorAll('input[name="order_type"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const isDelivery = document.getElementById('t-delivery').checked;
+      document.getElementById('address-group').style.display = isDelivery ? 'block' : 'none';
+      document.getElementById('delivery-line').style.display = isDelivery ? 'flex' : 'none';
+      const total = subtotal + (isDelivery ? deliveryFee : 0);
+      document.getElementById('total-value').textContent = currency + total.toFixed(2);
+      document.getElementById('delivery_address').required = isDelivery;
+    });
+  });
+</script>
+{% endblock %}
