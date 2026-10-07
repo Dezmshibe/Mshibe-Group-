@@ -1057,64 +1057,60 @@ def _absolute(path: str) -> str:
 
 @app.route("/sitemap.xml")
 def sitemap():
-    """Dynamic sitemap so every active service / menu page is auto-included."""
+    """Generate a clean sitemap containing only important public pages."""
     today = datetime.now().strftime("%Y-%m-%d")
 
-    pages = []  # (loc, changefreq, priority)
-
-    # --- static public pages ---
-    static_routes = [
-        ("index",                  "weekly",  "1.0"),
-        ("about",                  "monthly", "0.7"),
-        ("contact",                "monthly", "0.7"),
-        ("food_platform",          "monthly", "0.9"),
-        ("appointment_platform",   "monthly", "0.9"),
-        ("menu",                   "weekly",  "0.9"),
-        ("appointments_index",     "weekly",  "0.9"),
-        ("appointments_book",      "weekly",  "0.8"),
-        ("terms",                  "yearly",  "0.3"),
-        ("privacy",                "yearly",  "0.3"),
+    pages = [
+        ("/", "weekly", "1.0"),
+        ("/about", "monthly", "0.7"),
+        ("/contact", "monthly", "0.7"),
+        ("/food", "monthly", "0.9"),
+        ("/appointment", "monthly", "0.9"),
+        ("/menu", "weekly", "0.8"),
+        ("/appointments", "weekly", "0.8"),
+        ("/terms", "yearly", "0.3"),
+        ("/privacy", "yearly", "0.3"),
     ]
-    for endpoint, freq, prio in static_routes:
-        try:
-            pages.append((_absolute(url_for(endpoint)), freq, prio))
-        except Exception:
-            pass
 
-    # --- corporate service pages ---
-    for slug in CORPORATE_SERVICES.keys():
+    # Corporate service pages
+    for slug in CORPORATE_SERVICES:
         pages.append((
-            _absolute(url_for("corporate_service", slug=slug)),
-            "monthly", "0.8",
+            f"/services/{slug}",
+            "monthly",
+            "0.8",
         ))
 
-    # --- each active appointment service detail page ---
-    for svc in Service.query.filter_by(active=True).order_by(Service.id).all():
+    # Active appointment services
+    for service in Service.query.filter_by(active=True).order_by(Service.id).all():
         pages.append((
-            _absolute(url_for("appointment_service_detail", service_id=svc.id)),
-            "monthly", "0.7",
+            f"/appointments/service/{service.id}",
+            "monthly",
+            "0.7",
         ))
 
-    # --- each menu category view ---
-    for cat in MenuCategory.query.order_by(MenuCategory.display_order).all():
-        pages.append((
-            _absolute(url_for("menu", category=cat.id)),
-            "weekly", "0.6",
-        ))
+    xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
 
-    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    for loc, freq, prio in pages:
-        xml.append("  <url>")
-        xml.append(f"    <loc>{loc}</loc>")
-        xml.append(f"    <lastmod>{today}</lastmod>")
-        xml.append(f"    <changefreq>{freq}</changefreq>")
-        xml.append(f"    <priority>{prio}</priority>")
-        xml.append("  </url>")
+    for path, changefreq, priority in pages:
+        url = _absolute(path)
+
+        xml.extend([
+            "  <url>",
+            f"    <loc>{url}</loc>",
+            f"    <lastmod>{today}</lastmod>",
+            f"    <changefreq>{changefreq}</changefreq>",
+            f"    <priority>{priority}</priority>",
+            "  </url>",
+        ])
+
     xml.append("</urlset>")
 
-    return Response("\n".join(xml), mimetype="application/xml")
-
+    return Response(
+        "\n".join(xml),
+        mimetype="application/xml",
+    )
 
 @app.route("/robots.txt")
 def robots():
