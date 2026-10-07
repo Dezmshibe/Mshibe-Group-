@@ -13,9 +13,10 @@ from datetime import date as date_cls, datetime, time, timedelta
 from functools import wraps
 
 from flask import (
-    Flask, abort, flash, jsonify, redirect, render_template,
+    Flask, Response, abort, flash, jsonify, redirect, render_template,
     request, session, url_for,
 )
+
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import (
@@ -1027,6 +1028,92 @@ def admin_settings():
 def not_found(_):
     return render_template("404.html"), 404
 
+# ---------------------------------------------------------------------------
+# SEO: sitemap.xml + robots.txt
+# ---------------------------------------------------------------------------
+def _absolute(path: str) -> str:
+    """Build a full URL, honouring reverse proxies (X-Forwarded-Proto/Host)."""
+    return request.url_root.rstrip("/") + path
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """Dynamic sitemap so every active service / menu page is auto-included."""
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    pages = []  # (loc, changefreq, priority)
+
+    # --- static public pages ---
+    static_routes = [
+        ("index",                  "weekly",  "1.0"),
+        ("about",                  "monthly", "0.7"),
+        ("contact",                "monthly", "0.7"),
+        ("food_platform",          "monthly", "0.9"),
+        ("appointment_platform",   "monthly", "0.9"),
+        ("menu",                   "weekly",  "0.9"),
+        ("appointments_index",     "weekly",  "0.9"),
+        ("appointments_book",      "weekly",  "0.8"),
+        ("terms",                  "yearly",  "0.3"),
+        ("privacy",                "yearly",  "0.3"),
+    ]
+    for endpoint, freq, prio in static_routes:
+        try:
+            pages.append((_absolute(url_for(endpoint)), freq, prio))
+        except Exception:
+            pass
+
+    # --- corporate service pages ---
+    for slug in CORPORATE_SERVICES.keys():
+        pages.append((
+            _absolute(url_for("corporate_service", slug=slug)),
+            "monthly", "0.8",
+        ))
+
+    # --- each active appointment service detail page ---
+    for svc in Service.query.filter_by(active=True).order_by(Service.id).all():
+        pages.append((
+            _absolute(url_for("appointment_service_detail", service_id=svc.id)),
+            "monthly", "0.7",
+        ))
+
+    # --- each menu category view ---
+    for cat in MenuCategory.query.order_by(MenuCategory.display_order).all():
+        pages.append((
+            _absolute(url_for("menu", category=cat.id)),
+            "weekly", "0.6",
+        ))
+
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    for loc, freq, prio in pages:
+        xml.append("  <url>")
+        xml.append(f"    <loc>{loc}</loc>")
+        xml.append(f"    <lastmod>{today}</lastmod>")
+        xml.append(f"    <changefreq>{freq}</changefreq>")
+        xml.append(f"    <priority>{prio}</priority>")
+        xml.append("  </url>")
+    xml.append("</urlset>")
+
+    return Response("\n".join(xml), mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    sitemap_url = _absolute("/sitemap.xml")
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /admin",
+        "Disallow: /cart",
+        "Disallow: /checkout",
+        "Disallow: /order/",
+        "Disallow: /appointments/confirmation/",
+        "Disallow: /api/",
+        "",
+        f"Sitemap: {sitemap_url}",
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
 
 # ---------------------------------------------------------------------------
 # Seed data
