@@ -1128,7 +1128,11 @@ def robots():
         "",
         f"Sitemap: {sitemap_url}",
     ]
-    return Response("\n".join(lines), mimetype="text/plain")
+   return Response(
+    "\n".join(xml),
+    status=200,
+    content_type="text/xml; charset=utf-8",
+)
 
 # ---------------------------------------------------------------------------
 # Seed data
