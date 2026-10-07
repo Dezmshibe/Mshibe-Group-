@@ -13,8 +13,17 @@ from datetime import date as date_cls, datetime, time, timedelta
 from functools import wraps
 
 from flask import (
-    Flask, Response, abort, flash, jsonify, redirect, render_template,
-    request, session, url_for,
+    Flask,
+    Response,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    send_from_directory,
 )
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -1022,20 +1031,14 @@ def admin_settings():
 # ---------------------------------------------------------------------------
 # Google Search Console verification
 # ---------------------------------------------------------------------------
-@app.route("/google1234567890abcdef.html")
+@app.route("/google0f9a3b5ae4cf7087.html")
 def google_verification():
-    return Response(
-        "google-site-verification: google1234567890abcdef.html",
-        mimetype="text/plain",
+    return send_from_directory(
+        app.root_path,
+        "google0f9a3b5ae4cf7087.html",
+        mimetype="text/html",
     )
 
-
-# ---------------------------------------------------------------------------
-# Errors
-# ---------------------------------------------------------------------------
-@app.errorhandler(404)
-def not_found(_):
-    return render_template("404.html"), 404
 
 # ---------------------------------------------------------------------------
 # Errors
