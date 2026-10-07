@@ -1019,7 +1019,23 @@ def admin_settings():
         flash("Settings saved.", "success")
         return redirect(url_for("admin_settings"))
     return render_template("admin/settings.html", settings=settings)
+# ---------------------------------------------------------------------------
+# Google Search Console verification
+# ---------------------------------------------------------------------------
+@app.route("/google1234567890abcdef.html")
+def google_verification():
+    return Response(
+        "google-site-verification: google1234567890abcdef.html",
+        mimetype="text/plain",
+    )
 
+
+# ---------------------------------------------------------------------------
+# Errors
+# ---------------------------------------------------------------------------
+@app.errorhandler(404)
+def not_found(_):
+    return render_template("404.html"), 404
 
 # ---------------------------------------------------------------------------
 # Errors
