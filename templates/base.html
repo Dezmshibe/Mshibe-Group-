@@ -39,6 +39,11 @@
         </li>
         <li class="nav-item ms-lg-2"><a class="nav-site-link nav-site-link-food" href="{{ url_for('food_platform') }}">Chowza <i class="bi bi-arrow-up-right"></i></a></li>
         <li class="nav-item"><a class="nav-site-link nav-site-link-appointments" href="{{ url_for('appointment_platform') }}">Appoint <i class="bi bi-arrow-up-right"></i></a></li>
+        <li class="nav-item">
+          <a class="nav-link nav-link-ai" href="{{ url_for('ai_demo') }}">
+            <span class="ai-dot"></span> Try Neo
+          </a>
+        </li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('contact') }}">Contact</a></li>
         {% if session.get('admin_logged_in') %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin</a></li>

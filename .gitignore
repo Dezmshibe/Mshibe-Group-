@@ -1,36 +1,48 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-
-# Virtual environment
-venv/
-.venv/
-env/
-
-# Environment variables / secrets
+# Environment / secrets — NEVER commit these
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
-
-# Flask
 instance/
 
-# Uploaded/generated files
-static/uploads/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
 
-# IDE
+# Test / scratch
+body.json
+test.json
+*.log
+
+# IDE / editor
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Old experiment folders (safe to ignore)
+mshibe-receptionist/
+mshibe-voice/

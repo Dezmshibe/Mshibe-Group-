@@ -1,4 +1,4 @@
-"""Mshibe Group - multi-service platform.
+﻿"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Food ordering (delivery or pickup)
@@ -32,7 +32,7 @@ from models import (
     Appointment, ContactMessage, MenuCategory, MenuItem, Order, OrderItem,
     Service, SiteSetting, db,
 )
-
+from ai_receptionist import register as register_ai_receptionist
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ def get_settings() -> SiteSetting:
     if s is None:
         s = SiteSetting(
             company_name="Mshibe Group",
-            tagline="Great food and easy appointments — all in one place.",
+            tagline="Great food and easy appointments â€” all in one place.",
             about_text=(
                 "Mshibe Group is a multi-service company proudly serving our "
                 "community. From fresh, delicious meals delivered to your "
@@ -205,6 +205,9 @@ def index():
         categories=categories,
     )
 
+@app.route("/demo")
+def ai_demo():
+    return send_from_directory(app.root_path, "voice.html")
 
 @app.route("/about")
 def about():
@@ -939,7 +942,7 @@ def admin_service_delete(service_id):
     if service.appointments:
         service.active = False
         db.session.commit()
-        flash("Service has bookings — deactivated instead.", "error")
+        flash("Service has bookings â€” deactivated instead.", "error")
     else:
         db.session.delete(service)
         db.session.commit()
@@ -1039,6 +1042,19 @@ def google_verification():
         mimetype="text/html",
     )
 
+# ---------------------------------------------------------------------------
+# Serve static files (voice.html, widget.js, etc.)
+# ---------------------------------------------------------------------------
+@app.route("/<path:filename>")
+def serve_static_file(filename):
+    # Don't intercept admin or api routes — those have their own handlers
+    if filename.startswith(("admin", "api")):
+        return render_template("404.html"), 404
+    full_path = os.path.join(app.root_path, filename)
+    if os.path.isfile(full_path):
+        return send_from_directory(app.root_path, filename)
+    # Fall through to the 404 handler
+    return render_template("404.html"), 404
 
 # ---------------------------------------------------------------------------
 # Errors
@@ -1128,12 +1144,11 @@ def robots():
         "",
         f"Sitemap: {sitemap_url}",
     ]
-   return Response(
-    "\n".join(xml),
-    status=200,
-    content_type="text/xml; charset=utf-8",
-)
-
+    return Response(
+        "\n".join(lines),
+        status=200,
+        content_type="text/plain; charset=utf-8",
+    )
 # ---------------------------------------------------------------------------
 # Seed data
 # ---------------------------------------------------------------------------
@@ -1196,9 +1211,22 @@ def seed_data():
     db.session.commit()
 
 
+
+# =============================================================================
+# App startup
+# =============================================================================
 with app.app_context():
     db.create_all()
     seed_data()
+    # ---- register AI voice receptionist routes ----
+    register_ai_receptionist(
+        app,
+        get_settings,
+        Service,
+        Appointment,
+        db,
+        MenuItem=MenuItem,
+    )
 
 
 if __name__ == "__main__":

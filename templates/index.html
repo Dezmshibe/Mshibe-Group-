@@ -54,6 +54,58 @@
     </div>
   </div>
 </section>
+<section class="ai-demo-section" id="ai-demo">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row">
+      <div>
+        <p class="eyebrow dark">04 <span></span> AI RECEPTIONIST</p>
+        <h2>Meet <em>Neo.</em></h2>
+      </div>
+      <p>An AI receptionist that answers customers 24/7, books appointments, and hands off to a human when needed. Try it live.</p>
+    </div>
+
+    <div class="ai-demo-grid">
+      <div class="ai-demo-copy">
+        <ul class="ai-demo-list">
+          <li><i class="bi bi-chat-dots"></i> Answers in natural conversation — no menus, no scripts</li>
+          <li><i class="bi bi-calendar-check"></i> Books real appointments into this platform</li>
+          <li><i class="bi bi-shop"></i> Looks up menu items and order statuses</li>
+          <li><i class="bi bi-telephone"></i> Hands off to your team when it should</li>
+          <li><i class="bi bi-clock-history"></i> Works 24/7 — even when your office is closed</li>
+        </ul>
+
+        <div class="hero-actions" style="margin-top:2rem">
+          <a href="{{ url_for('ai_demo') }}" class="hero-button hero-button-dark">
+            Try the live demo <i class="bi bi-arrow-up-right"></i>
+          </a>
+          <a href="{{ url_for('contact') }}" class="hero-text-link">
+            Talk to us about it <i class="bi bi-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="ai-demo-preview">
+        <div class="ai-demo-preview-head">
+<img class="ai-demo-avatar" src="{{ url_for('static', filename='images/neo.png') }}" alt="Neo">          <div>
+            <b>Neo</b>
+            <span>AI Receptionist · Online</span>
+          </div>
+          <div class="ai-demo-live-dot"></div>
+        </div>
+        <div class="ai-demo-preview-body">
+          <div class="ai-msg ai-msg-user">Hi, do you have any appointments available tomorrow?</div>
+          <div class="ai-msg ai-msg-bot">Yes — I have 09:30, 11:00 and 14:00 available tomorrow. Which works best for you?</div>
+          <div class="ai-msg ai-msg-user">11:00 please.</div>
+          <div class="ai-msg ai-msg-bot">Great. May I have your full name?</div>
+        </div>
+        <div class="ai-demo-preview-foot">
+          <span>Powered by Neo</span>
+          <span class="ai-demo-cta">Try it →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="services-section">
   <div class="container-fluid px-4 px-lg-5">
