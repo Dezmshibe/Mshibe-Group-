@@ -47,8 +47,12 @@ def register(app, get_settings, Service, Appointment, db, MenuItem=None,
 
     try:
         from flask_cors import CORS
-        CORS(app, resources={r"/api/*": {"origins": "*"}})
-    except ImportError:
+_allowed = os.getenv("ALLOWED_ORIGINS", "").strip()
+if _allowed:
+    CORS(app, resources={r"/api/*": {"origins": [o.strip() for o in _allowed.split(",")]}})
+else:
+    # Same-origin only (voice.html is served from the same Flask app)
+    CORS(app, resources={r"/api/*": {"origins": []}})    except ImportError:
         pass
 
     client, provider, model = _build_client()
@@ -538,11 +542,35 @@ def register(app, get_settings, Service, Appointment, db, MenuItem=None,
     def voice_chat():
         if request.method == "OPTIONS":
             return ("", 204)
-        data = request.get_json(silent=True) or {}
+               data = request.get_json(silent=True) or {}
         message = (data.get("message") or "").strip()
-        conversation_id = data.get("conversation_id") or "default"
+        conversation_id = (data.get("conversation_id") or "default").strip()
+
+        # ---- input validation ----
         if not message:
             return jsonify({"reply": "Sorry, I didn't catch that."}), 400
+        if len(message) > 800:
+            message = message[:800]
+        if len(conversation_id) > 64:
+            conversation_id = conversation_id[:64]
+
+        # Strip control characters that could confuse the model.
+        message = "".join(ch for ch in message if ch.isprintable() or ch in " \n\t")
+
+        # Prompt-injection guard: block obvious overrides.
+        lowered = message.lower()
+        injection_markers = [
+            "ignore previous", "ignore all previous", "system prompt",
+            "developer message", "reveal your instructions",
+            "print your prompt", "you are now", "act as", "jailbreak",
+            "disregard your instructions", "forget your rules",
+        ]
+        if any(m in lowered for m in injection_markers):
+            return jsonify({
+                "reply": "I can only help with questions about Mshibe Group. "
+                         "Would you like me to connect you with a member of the team?",
+                "escalate": False
+            })
         if not client:
             return jsonify(fallback_reply(message))
 
