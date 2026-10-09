@@ -7,7 +7,7 @@
 #   POST /api/voice/chat     -> AI reply with tool calling
 #
 # Expanded edition: menu lookups, order status, service comparison,
-# recommendations, small talk, and multi-intent conversation.
+# small talk, multi-intent, plus security hardening.
 # =============================================================================
 
 import os
@@ -22,6 +22,16 @@ from flask import jsonify, request
 load_dotenv()
 
 BOT_NAME = os.getenv("RECEPTIONIST_NAME", "Neo").strip() or "Neo"
+
+
+# Rate limiter: try to import from security.py; if not present, use a no-op.
+try:
+    from security import rate_limit
+except Exception:
+    def rate_limit(bucket_name, max_per_window, window_seconds):
+        def deco(fn):
+            return fn
+        return deco
 
 
 def _build_client():
@@ -40,19 +50,22 @@ def _build_client():
     return None, "fallback", None
 
 
-def register(app, get_settings, Service, Appointment, db, MenuItem=None,
-             MenuCategory=None, Order=None):
-    """Attach AI receptionist routes. MenuItem and Order are optional
-    (they enable menu + order-status tools if present)."""
+def register(app, get_settings, Service, Appointment, db,
+             MenuItem=None, MenuCategory=None, Order=None):
+    """Attach AI receptionist routes. MenuItem/MenuCategory/Order are optional."""
 
+    # -------------------------------------------------------------------------
+    # CORS: same-origin by default; set ALLOWED_ORIGINS in .env to open up.
+    # -------------------------------------------------------------------------
     try:
         from flask_cors import CORS
-_allowed = os.getenv("ALLOWED_ORIGINS", "").strip()
-if _allowed:
-    CORS(app, resources={r"/api/*": {"origins": [o.strip() for o in _allowed.split(",")]}})
-else:
-    # Same-origin only (voice.html is served from the same Flask app)
-    CORS(app, resources={r"/api/*": {"origins": []}})    except ImportError:
+        allowed = os.getenv("ALLOWED_ORIGINS", "").strip()
+        if allowed:
+            origins = [o.strip() for o in allowed.split(",") if o.strip()]
+        else:
+            origins = []
+        CORS(app, resources={r"/api/*": {"origins": origins}})
+    except ImportError:
         pass
 
     client, provider, model = _build_client()
@@ -63,8 +76,6 @@ else:
     # =========================================================================
     def system_prompt():
         s = get_settings()
-
-        # ---- services ----
         services = Service.query.filter_by(active=True).order_by(Service.name).all()
         svc_lines = "\n".join(
             "- id=" + str(x.id) + " | " + x.name
@@ -74,7 +85,6 @@ else:
             for x in services
         ) or "- No services are currently listed."
 
-        # ---- menu ----
         menu_block = ""
         if MenuItem is not None:
             try:
@@ -88,15 +98,15 @@ else:
                 pass
 
         return (
-       "You are " + BOT_NAME + ", the AI receptionist for " + s.company_name
-+ ", speaking with customers by telephone.\n\n"
+            "You are " + BOT_NAME + ", the AI receptionist for " + s.company_name
+            + ", speaking with customers by telephone.\n\n"
 
-"IDENTITY\n"
-"- Your name is " + BOT_NAME + ".\n"
-"- On the FIRST message of every new call, introduce yourself by name.\n"
-"- Example: 'Hi, thank you for calling " + s.company_name + ", this is " + BOT_NAME + ". How can I help you today?'\n"
-"- On later messages, don't repeat your name unless the customer asks.\n"
-"- If asked 'who are you?' or 'what's your name?', say you are " + BOT_NAME + ", the virtual receptionist.\n\n"
+            "IDENTITY\n"
+            "- Your name is " + BOT_NAME + ".\n"
+            "- On the FIRST message of every new call, introduce yourself by name.\n"
+            "- Example: 'Hi, thank you for calling " + s.company_name + ", this is " + BOT_NAME + ". How can I help you today?'\n"
+            "- On later messages, don't repeat your name unless the customer asks.\n"
+            "- If asked 'who are you?' or 'what's your name?', say you are " + BOT_NAME + ", the virtual receptionist.\n\n"
 
             "PERSONALITY\n"
             "- Warm, professional, patient, natural, conversational.\n"
@@ -199,8 +209,7 @@ else:
                ["query"]),
             mk("compare_services",
                "Compare two or more services side by side (price, duration, description).",
-               {"names": {"type": "array", "items": {"type": "string"},
-                          "description": "Service names to compare, e.g. ['Business Advisory','Wellness Session']"}},
+               {"names": {"type": "array", "items": {"type": "string"}}},
                ["names"]),
             mk("get_available_slots",
                "Available appointment slots for a specific day. Call BEFORE asking for name.",
@@ -224,25 +233,20 @@ else:
                 "reason": {"type": "string"}},
                ["name", "phone"]),
             mk("transfer_to_human",
-               "Transfer the call to a human. Use if the customer asks, is angry,\n"
-               "or if you cannot answer confidently.",
+               "Transfer the call to a human.",
                {"reason": {"type": "string"}}, ["reason"]),
         ]
-
         if MenuItem is not None:
             base.append(mk("search_menu",
                            "Search or list menu items. Optional category filter and keyword search.",
-                           {"category": {"type": "string",
-                                         "description": "Optional category name, e.g. 'Mains'"},
-                            "query": {"type": "string",
-                                      "description": "Optional keyword like 'chicken', 'vegetarian', 'cold'"}}))
+                           {"category": {"type": "string"},
+                            "query": {"type": "string"}}))
             base.append(mk("list_menu_categories",
                            "List all available menu categories."))
         if Order is not None:
             base.append(mk("get_order_status",
-                           "Look up an order by reference (e.g. 'AB12CD34').",
+                           "Look up an order by reference.",
                            {"reference": {"type": "string"}}, ["reference"]))
-
         return base
 
     # =========================================================================
@@ -318,7 +322,7 @@ else:
         s = _match_service(query)
         if not s:
             return {"found": False,
-                    "message": "No matching service. Ask the customer to describe what they need.",
+                    "message": "No matching service.",
                     "available": [x.name for x in Service.query.filter_by(active=True).all()]}
         return {"found": True, "id": s.id, "name": s.name,
                 "price": float(s.price or 0),
@@ -539,25 +543,26 @@ else:
                         "ai": provider, "model": model})
 
     @app.route("/api/voice/chat", methods=["POST", "OPTIONS"])
+    @rate_limit("voice_chat",
+                max_per_window=int(os.getenv("VOICE_RATE_LIMIT_PER_HOUR", "60")),
+                window_seconds=3600)
     def voice_chat():
         if request.method == "OPTIONS":
             return ("", 204)
-               data = request.get_json(silent=True) or {}
+
+        data = request.get_json(silent=True) or {}
         message = (data.get("message") or "").strip()
         conversation_id = (data.get("conversation_id") or "default").strip()
 
-        # ---- input validation ----
         if not message:
             return jsonify({"reply": "Sorry, I didn't catch that."}), 400
         if len(message) > 800:
             message = message[:800]
         if len(conversation_id) > 64:
             conversation_id = conversation_id[:64]
+        message = "".join(ch for ch in message
+                          if ch.isprintable() or ch in " \n\t")
 
-        # Strip control characters that could confuse the model.
-        message = "".join(ch for ch in message if ch.isprintable() or ch in " \n\t")
-
-        # Prompt-injection guard: block obvious overrides.
         lowered = message.lower()
         injection_markers = [
             "ignore previous", "ignore all previous", "system prompt",
@@ -571,6 +576,7 @@ else:
                          "Would you like me to connect you with a member of the team?",
                 "escalate": False
             })
+
         if not client:
             return jsonify(fallback_reply(message))
 
