@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Food — {{ settings.company_name }}{% endblock %}
 {% block content %}
 <section class="platform-hero platform-hero-food">
@@ -68,9 +68,32 @@
   </div>
 </section>
 
+<section class="platform-features" style="padding-bottom:0">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row">
+      <div>
+        <p class="eyebrow dark">03 <span></span> WATCH IT IN ACTION</p>
+        <h2>See the full journey.</h2>
+      </div>
+      <p>From menu to doorstep — watch how a customer finds a business, places an order and tracks it to completion.</p>
+    </div>
+
+    <div style="border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(15,23,42,.18);background:#08111f;border:1px solid rgba(217,154,75,.25)">
+      <video autoplay muted loop playsinline preload="metadata" style="display:block;width:100%;height:auto">
+        <source src="{{ url_for('static', filename='images/chowza-flow.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;letter-spacing:.4px">
+      Chowza platform flow · MSHIBE GROUP
+    </p>
+  </div>
+</section>
+
 <section class="platform-cta">
   <div class="container-fluid px-4 px-lg-5">
-    <p class="eyebrow">03 <span></span> TRY IT</p>
+    <p class="eyebrow">04 <span></span> TRY IT</p>
     <h2>See the Chowza experience<br><em>in action.</em></h2>
     <a href="{{ url_for('menu') }}" class="hero-button hero-button-light">Open Chowza demo <i class="bi bi-arrow-up-right"></i></a>
   </div>

@@ -33,6 +33,7 @@ from models import (
     Service, SiteSetting, db,
 )
 from ai_receptionist import register as register_ai_receptionist
+from security import register_security, rate_limit, login_allowed, record_login_fail, clear_login_fails
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
@@ -44,6 +45,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
+register_security(app)
 
 
 # ---------------------------------------------------------------------------
@@ -626,16 +628,31 @@ def api_slots():
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     settings = get_settings()
+    ip = (request.headers.get("X-Forwarded-For", "") or request.remote_addr or "unknown").split(",")[0].strip()
+
     if request.method == "POST":
+        if not login_allowed(ip):
+            flash("Too many failed attempts. Please wait a few minutes.", "error")
+            return render_template("admin/login.html"), 429
+
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
-        if username == settings.admin_username and check_password_hash(
-            settings.admin_password_hash or "", password
-        ):
+
+        ok = (
+            username == settings.admin_username
+            and check_password_hash(settings.admin_password_hash or "", password)
+        )
+        if ok:
+            clear_login_fails(ip)
+            session.clear()
             session["admin_logged_in"] = True
+            session.permanent = True
             flash("Welcome back!", "success")
             return redirect(request.args.get("next") or url_for("admin_dashboard"))
+
+        record_login_fail(ip)
         flash("Invalid username or password.", "error")
+
     return render_template("admin/login.html")
 
 
