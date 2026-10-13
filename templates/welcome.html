@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{# ---- Content: edit these, not the markup ---- #}
+{% set company = settings.company_name if (settings is defined and settings.company_name) else 'Mshibe Group' %}
+{% set city = 'Johannesburg' %}
+{% set est = 'Est. 2026' %}
+{% set divisions = ['Technology', 'Media & Marketing', 'Commerce', 'Business Solutions', 'Chowza', 'Appoint', 'Neo'] %}
+
+
+{% block title %}Welcome — {{ company }}{% endblock %}
+{% block meta_description %}Welcome to {{ company }} — building businesses, brands and digital experiences for what comes next.{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ============================================================
+     WELCOME — split-screen editorial
+     Everything is scoped under .wsplit so style.css can't leak in.
+     Set --nav-h on :root if your navbar isn't 73px tall.
+     ============================================================ */
+
+  /* Hide global chrome on this page only (needs :has(); older browsers just keep the footer) */
+  body:has(.wsplit) { background: #080808; }
+  body:has(.wsplit) main { padding: 0 !important; }
+  body:has(.wsplit) main > .container-fluid { padding: 0 !important; max-width: none !important; }
+  body:has(.wsplit) .site-footer { display: none !important; }
+
+  .wsplit {
+    --ws-ink: #080808;
+    --ws-paper: #f4f4f0;
+    --ws-lime: #c8ff32;
+    --ws-ease: cubic-bezier(.22, 1, .36, 1);
+    --ws-pad: clamp(1.75rem, 4vw, 3.5rem);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: calc(100vh - var(--nav-h, 73px));
+    min-height: calc(100dvh - var(--nav-h, 73px));
+    width: 100%;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* shared focus ring: visible on both dark and light panels */
+  .wsplit a:focus-visible {
+    outline: 3px solid var(--ws-lime);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px var(--ws-ink);
+  }
+
+  /* ============================================================
+     LEFT PANEL — dark, big type
+     ============================================================ */
+  .wsplit-left {
+    position: relative;
+    background:
+      radial-gradient(60% 45% at 90% 105%, rgba(200,255,50,.13), transparent 70%),
+      var(--ws-ink);
+    color: #fff;
+    padding: var(--ws-pad);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* corner registration marks */
+  .wsplit-left::before,
+  .wsplit-left::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(200,255,50,.55);
+    pointer-events: none;
+  }
+  .wsplit-left::before { top: 1.5rem; left: 1.5rem; border-right: 0; border-bottom: 0; }
+  .wsplit-left::after  { bottom: 1.5rem; right: 1.5rem; border-left: 0; border-top: 0; }
+
+  .wsplit-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .75rem;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .22em;
+    color: var(--ws-lime);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: wsplit-fade-down .8s var(--ws-ease) .2s forwards;
+  }
+  .wsplit-brand i {
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1;
+    animation: wsplit-spin 16s linear infinite;
+  }
+
+  .wsplit-headline {
+    font-size: clamp(2.4rem, 4.8vw, 4.5rem);
+    line-height: .98;
+    letter-spacing: -.045em;
+    font-weight: 900;
+    margin: 0;
+    max-width: 100%;
+  }
+  .wsplit-headline .row {
+    display: block;
+    overflow: hidden;              /* masks the rise animation */
+    padding: .04em 0 .12em;        /* bottom room so descenders are never clipped */
+    margin-bottom: -.08em;
+    white-space: nowrap;
+  }
+  .wsplit-headline .row > span {
+    display: inline-block;
+    transform: translateY(120%);
+    opacity: 0;
+    animation: wsplit-rise .95s var(--ws-ease) forwards;
+  }
+  .wsplit-headline .row:nth-child(1) > span { animation-delay: .35s; }
+  .wsplit-headline .row:nth-child(2) > span { animation-delay: .50s; }
+  .wsplit-headline .row:nth-child(3) > span { animation-delay: .65s; }
+
+  .wsplit-headline em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: clamp(1.5px, .035em, 3px) var(--ws-lime);
+    paint-order: stroke fill;
+  }
+  @supports not (-webkit-text-stroke: 1px #000) {
+    .wsplit-headline em { color: var(--ws-lime); }
+  }
+
+  .wsplit-foot {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: .72rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #9c9c9c;                /* 7:1 on the dark panel (was 3.6:1) */
+    white-space: nowrap;
+    opacity: 0;
+    animation: wsplit-fade-up .8s var(--ws-ease) .9s forwards;
+  }
+  .wsplit-foot .dot {
+    width: 6px; height: 6px;
+    background: var(--ws-lime);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(200,255,50,.9);
+    animation: wsplit-blink 1.6s ease-in-out infinite;
+  }
+
+  /* ============================================================
+     RIGHT PANEL — light, content
+     ============================================================ */
+  .wsplit-right {
+    position: relative;
+    background: var(--ws-paper);
+    color: var(--ws-ink);
+    padding: var(--ws-pad) clamp(1.75rem, 5vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.25rem;
+    min-width: 0;
+  }
+
+  .wsplit-divider {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--ws-ink);
+    transform-origin: top;
+    transform: scaleY(0);
+    animation: wsplit-draw 1.2s cubic-bezier(.77, 0, .18, 1) .15s forwards;
+  }
+
+  .wsplit-intro {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #3d3d3d;
+    max-width: 30em;
+    margin: 0;
+    text-wrap: pretty;
+    opacity: 0;
+    animation: wsplit-fade-up 1s var(--ws-ease) .8s forwards;
+  }
+  .wsplit-intro strong { color: var(--ws-ink); font-weight: 800; }
+
+  /* ---------- marquee ----------
+     First list is real content for screen readers; the copy is decorative.
+     No flex gap: each item carries its own padding so -50% loops with no jump. */
+  .wsplit-marquee {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--ws-ink);
+    border-bottom: 1px solid var(--ws-ink);
+    padding: .85rem 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    opacity: 0;
+    animation: wsplit-fade-up 1s var(--ws-ease) 1s forwards;
+  }
+  .wsplit-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: wsplit-marquee 32s linear infinite;
+  }
+  .wsplit-marquee:hover .wsplit-marquee-track { animation-play-state: paused; }
+  .wsplit-marquee ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .wsplit-marquee li {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+  }
+  .wsplit-marquee li::after {
+    content: "◆";
+    color: var(--ws-lime);
+    -webkit-text-stroke: 1px var(--ws-ink);   /* lime alone is invisible on the light panel */
+    font-size: .7rem;
+  }
+
+  /* ---------- CTA row ---------- */
+  .wsplit-cta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: wsplit-fade-up 1s var(--ws-ease) 1.15s forwards;
+  }
+  .wsplit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    min-height: 48px;
+    padding: .9rem 1.4rem;
+    font-size: .9rem;
+    font-weight: 800;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background .22s ease, color .22s ease, transform .22s ease, border-color .22s ease;
+  }
+  .wsplit-btn i { transition: transform .22s ease; }
+  .wsplit-btn-primary { background: var(--ws-ink); color: #fff; border-color: var(--ws-ink); }
+  .wsplit-btn-ghost   { background: transparent; color: var(--ws-ink); border-color: var(--ws-ink); }
+  .wsplit-btn:active  { transform: translateY(0) scale(.98); }
+  @media (hover: hover) {
+    .wsplit-btn-primary:hover { background: var(--ws-lime); color: var(--ws-ink); border-color: var(--ws-lime); transform: translateY(-2px); }
+    .wsplit-btn-primary:hover i { transform: translateX(4px); }
+    .wsplit-btn-ghost:hover { background: var(--ws-ink); color: #fff; transform: translateY(-2px); }
+  }
+
+  /* ---------- stats ---------- */
+  .wsplit-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,.15);
+    opacity: 0;
+    animation: wsplit-fade-up 1s var(--ws-ease) 1.3s forwards;
+  }
+  .wsplit-stat { margin: 0; display: flex; flex-direction: column; }
+  .wsplit-stat dd {
+    order: 1;                      /* number shows first; label (dt) stays first in the DOM for valid markup */
+    margin: 0;
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    font-weight: 900;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+  }
+  .wsplit-stat dt {
+    order: 2;
+    margin-top: .35rem;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: #565656;                /* 6.9:1 on paper (was 4:1) */
+    font-weight: 700;
+  }
+
+  /* ---------- keyframes ---------- */
+  @keyframes wsplit-rise      { to { transform: translateY(0); opacity: 1; } }
+  @keyframes wsplit-draw      { to { transform: scaleY(1); } }
+  @keyframes wsplit-marquee   { to { transform: translateX(-50%); } }
+  @keyframes wsplit-blink     { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+  @keyframes wsplit-spin      { to { transform: rotate(360deg); } }
+  @keyframes wsplit-fade-up   { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes wsplit-fade-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 900px) {
+    .wsplit { grid-template-columns: 1fr; min-height: auto; }
+    .wsplit-left { min-height: min(60vh, 26rem); padding-block: 3.25rem 2.5rem; }
+    .wsplit-right { border-top: 1px solid var(--ws-ink); padding-block: 2.5rem 3rem; }
+    .wsplit-divider { display: none; }
+    .wsplit-headline { font-size: clamp(2.4rem, 11vw, 3.6rem); }
+  }
+  @media (max-width: 520px) {
+    .wsplit-stats { gap: 1rem; }
+    .wsplit-cta { flex-direction: column; align-items: stretch; }
+    .wsplit-btn { justify-content: center; }
+  }
+
+  /* ============================================================
+     REDUCED MOTION — show everything, static, nothing clipped
+     ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .wsplit *, .wsplit *::before, .wsplit *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .wsplit-brand, .wsplit-foot, .wsplit-intro, .wsplit-marquee, .wsplit-cta, .wsplit-stats,
+    .wsplit-headline .row > span { opacity: 1; transform: none; }
+    .wsplit-divider { transform: none; }
+    .wsplit-marquee { -webkit-mask-image: none; mask-image: none; }
+    .wsplit-marquee-track { width: auto; }
+    .wsplit-marquee ul { flex-wrap: wrap; row-gap: .5rem; }
+    .wsplit-marquee ul[aria-hidden="true"] { display: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="wsplit" aria-label="Welcome">
+
+  <!-- ==================== LEFT ==================== -->
+  <div class="wsplit-left">
+
+    <div class="wsplit-brand">
+      <i class="bi bi-asterisk" aria-hidden="true"></i>
+      {{ company }} — South Africa
+    </div>
+
+    <h1 class="wsplit-headline">
+      <span class="row"><span>Welcome</span></span>
+      <span class="row"><span>to what</span></span>
+      <span class="row"><span><em>comes next.</em></span></span>
+    </h1>
+
+    <div class="wsplit-foot">
+      <span>{{ est }}</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>{{ city }}</span>
+    </div>
+  </div>
+
+  <!-- ==================== RIGHT ==================== -->
+  <div class="wsplit-right">
+    <div class="wsplit-divider" aria-hidden="true"></div>
+
+    <p class="wsplit-intro">
+      <strong>{{ company }}</strong> builds businesses, brands and digital experiences designed to turn ideas into opportunities — from food and appointments to property and beyond.
+    </p>
+
+    <div class="wsplit-marquee" role="region" aria-label="What we do">
+      <div class="wsplit-marquee-track">
+        <ul>
+          {% for d in divisions %}<li>{{ d }}</li>{% endfor %}
+        </ul>
+        <ul aria-hidden="true">
+          {% for d in divisions %}<li>{{ d }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="wsplit-cta">
+      <a href="{{ url_for('index') }}" class="wsplit-btn wsplit-btn-primary">
+        Enter the site <i class="bi bi-arrow-right" aria-hidden="true"></i>
+      </a>
+      <a href="{{ url_for('contact') }}" class="wsplit-btn wsplit-btn-ghost">
+        Get in touch
+      </a>
+    </div>
+
+    <dl class="wsplit-stats">
+      {% for value, label in stats %}
+      <div class="wsplit-stat">
+        <dt>{{ label }}</dt>
+        <dd>{{ value }}</dd>
+      </div>
+      {% endfor %}
+    </dl>
+  </div>
+
+</section>
+{% endblock %}

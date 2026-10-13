@@ -189,6 +189,10 @@ def money(value):
 # ---------------------------------------------------------------------------
 # Public pages
 # ---------------------------------------------------------------------------
+@app.route("/welcome")
+def welcome():
+    return render_template("welcome.html")
+
 @app.route("/")
 def index():
     featured_items = MenuItem.query.filter_by(
@@ -1059,18 +1063,43 @@ def google_verification():
         mimetype="text/html",
     )
 
-# ---------------------------------------------------------------------------
-# Serve static files (voice.html, widget.js, etc.)
-# ---------------------------------------------------------------------------
+import os
+
+ALLOWED_ROOT_EXTS = {
+    ".html", ".js", ".css",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico",
+    ".mp4", ".webm", ".mp3", ".wav",
+    ".woff", ".woff2", ".ttf", ".otf",
+    ".txt", ".xml",
+}
+
+
 @app.route("/<path:filename>")
 def serve_static_file(filename):
-    # Don't intercept admin or api routes — those have their own handlers
-    if filename.startswith(("admin", "api")):
+    # Never intercept admin/api/known routes
+    if filename.startswith(("admin", "api", "static", "fixflow")):
         return render_template("404.html"), 404
-    full_path = os.path.join(app.root_path, filename)
+
+    # Extension must be on the allow-list
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_ROOT_EXTS:
+        return render_template("404.html"), 404
+
+    # Reject anything with hidden segments or __pycache__
+    parts = filename.split("/")
+    if any(p.startswith(".") or p == "__pycache__" for p in parts):
+        return render_template("404.html"), 404
+
+    full_path = os.path.abspath(os.path.join(app.root_path, filename))
+    root = os.path.abspath(app.root_path)
+
+    # Path traversal guard: final path must stay inside app root
+    if not full_path.startswith(root + os.sep):
+        return render_template("404.html"), 404
+
     if os.path.isfile(full_path):
         return send_from_directory(app.root_path, filename)
-    # Fall through to the 404 handler
+
     return render_template("404.html"), 404
 
 # ---------------------------------------------------------------------------
