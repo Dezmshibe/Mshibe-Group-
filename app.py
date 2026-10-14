@@ -1,4 +1,4 @@
-﻿"""Mshibe Group - multi-service platform.
+"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Food ordering (delivery or pickup)
@@ -47,6 +47,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 register_security(app)
 
+def _clean_text(text: str) -> str:
+    """Strip UTF-8 BOM if present. Protects sitemap.xml, robots.txt, etc."""
+    if text and text[0] == "\ufeff":
+        return text[1:]
+    return text
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -56,7 +61,7 @@ def get_settings() -> SiteSetting:
     if s is None:
         s = SiteSetting(
             company_name="Mshibe Group",
-            tagline="Great food and easy appointments â€” all in one place.",
+            tagline="Great food and easy appointments — all in one place.",
             about_text=(
                 "Mshibe Group is a multi-service company proudly serving our "
                 "community. From fresh, delicious meals delivered to your "
@@ -963,7 +968,7 @@ def admin_service_delete(service_id):
     if service.appointments:
         service.active = False
         db.session.commit()
-        flash("Service has bookings â€” deactivated instead.", "error")
+        flash("Service has bookings — deactivated instead.", "error")
     else:
         db.session.delete(service)
         db.session.commit()
@@ -1108,92 +1113,68 @@ def serve_static_file(filename):
 @app.errorhandler(404)
 def not_found(_):
     return render_template("404.html"), 404
-
 # ---------------------------------------------------------------------------
-# SEO: sitemap.xml + robots.txt
+# SEO: sitemap.xml
 # ---------------------------------------------------------------------------
 def _absolute(path: str) -> str:
     """Build a full URL, honouring reverse proxies (X-Forwarded-Proto/Host)."""
-    return request.url_root.rstrip("/") + path
+    # Force https in production (Render terminates TLS at the edge)
+    root = request.url_root.rstrip("/")
+    if root.startswith("http://") and "localhost" not in root and "127.0.0.1" not in root:
+        root = "https://" + root[len("http://"):]
+    return root + path
 
 
 @app.route("/sitemap.xml")
 def sitemap():
     """Generate a clean sitemap containing only important public pages."""
-    today = datetime.now().strftime("%Y-%m-%d")
+
+    # Use a fixed, safe lastmod. Render's server clock can drift, and Google
+    # rejects sitemaps where lastmod is in the future.
+    today = datetime.utcnow().strftime("%Y-%m-%d")
 
     pages = [
-        ("/", "weekly", "1.0"),
-        ("/about", "monthly", "0.7"),
-        ("/contact", "monthly", "0.7"),
-        ("/food", "monthly", "0.9"),
-        ("/appointment", "monthly", "0.9"),
-        ("/menu", "weekly", "0.8"),
-        ("/appointments", "weekly", "0.8"),
-        ("/terms", "yearly", "0.3"),
-        ("/privacy", "yearly", "0.3"),
+        ("/",              "weekly",  "1.0"),
+        ("/about",         "monthly", "0.7"),
+        ("/contact",       "monthly", "0.7"),
+        ("/food",          "monthly", "0.9"),
+        ("/appointment",   "monthly", "0.9"),
+        ("/menu",          "weekly",  "0.8"),
+        ("/appointments",  "weekly",  "0.8"),
+        ("/welcome",       "monthly", "0.5"),
+        ("/terms",         "yearly",  "0.3"),
+        ("/privacy",       "yearly",  "0.3"),
     ]
 
-    # Corporate service pages
     for slug in CORPORATE_SERVICES:
-        pages.append((
-            f"/services/{slug}",
-            "monthly",
-            "0.8",
-        ))
+        pages.append((f"/services/{slug}", "monthly", "0.8"))
 
-    # Active appointment services
     for service in Service.query.filter_by(active=True).order_by(Service.id).all():
-        pages.append((
-            f"/appointments/service/{service.id}",
-            "monthly",
-            "0.7",
-        ))
+        pages.append((f"/appointments/service/{service.id}", "monthly", "0.7"))
 
-    xml = [
+    xml_parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
 
     for path, changefreq, priority in pages:
         url = _absolute(path)
+        xml_parts.append(
+            "  <url>"
+            f"<loc>{url}</loc>"
+            f"<lastmod>{today}</lastmod>"
+            f"<changefreq>{changefreq}</changefreq>"
+            f"<priority>{priority}</priority>"
+            "</url>"
+        )
 
-        xml.extend([
-            "  <url>",
-            f"    <loc>{url}</loc>",
-            f"    <lastmod>{today}</lastmod>",
-            f"    <changefreq>{changefreq}</changefreq>",
-            f"    <priority>{priority}</priority>",
-            "  </url>",
-        ])
-
-    xml.append("</urlset>")
+    xml_parts.append("</urlset>")
+    xml_body = "\n".join(xml_parts)
 
     return Response(
-        "\n".join(xml),
-        mimetype="application/xml",
-    )
-
-@app.route("/robots.txt")
-def robots():
-    sitemap_url = _absolute("/sitemap.xml")
-    lines = [
-        "User-agent: *",
-        "Allow: /",
-        "Disallow: /admin/",
-        "Disallow: /admin",
-        "Disallow: /cart",
-        "Disallow: /checkout",
-        "Disallow: /order/",
-        "Disallow: /appointments/confirmation/",
-        "Disallow: /api/",
-        "",
-        f"Sitemap: {sitemap_url}",
-    ]
-    return Response(
-        "\n".join(lines),
+        _clean_text(xml_body),
         status=200,
-        content_type="text/plain; charset=utf-8",
+        content_type="application/xml; charset=utf-8",
     )
 # ---------------------------------------------------------------------------
 # Seed data
