@@ -1,4 +1,4 @@
-"""Mshibe Group - multi-service platform.
+﻿"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Food ordering (delivery or pickup)
@@ -1204,6 +1204,10 @@ def robots():
     response.headers["Content-Length"] = str(len(body.encode("utf-8")))
     response.headers["Cache-Control"] = "public, max-age=3600"
     return response
+
+@app.route("/robots-test-xyz")
+def robots_test():
+    return "This is a test route. If you see this, the deploy worked."
 # ---------------------------------------------------------------------------
 # Seed data
 # ---------------------------------------------------------------------------
