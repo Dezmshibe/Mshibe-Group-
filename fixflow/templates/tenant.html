@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <div class="sub">Submit and track maintenance at your home</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Your property</h3>
+  {% if prop %}
+    <div style="font-size:1.02rem;font-weight:600;">{{ prop.name }}</div>
+    <div class="muted" style="font-size:.86rem;">{{ prop.address }}{% if unit %} &middot; {{ unit.label }}{% endif %}</div>
+  {% else %}
+    <div class="empty">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      </div>
+      You are not assigned to a property yet. Contact your landlord.
+    </div>
+  {% endif %}
+</div>
+
+{% if prop %}
+<div class="card">
+  <h3>Report a problem</h3>
+  <form method="post" action="{{ url_for('new_request') }}">
+    <div class="form-row"><label>Title</label><input type="text" name="title" required placeholder="e.g. Leaking kitchen tap"></div>
+    <div class="form-row"><label>Description</label><textarea name="description" required placeholder="What is happening, where, and since when..."></textarea></div>
+    <div class="grid cols-2">
+      <div class="form-row"><label>Priority</label><select name="priority">{% for p in PRIORITIES %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+      <div class="form-row"><label>Trade</label><select name="trade_category">{% for t in TRADES %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select></div>
+    </div>
+    <button type="submit">Submit request</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Your requests</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Trade</th><th>Status</th><th>Contractor</th><th class="right">Invoice</th><th class="right">Rating</th></tr></thead>
+    <tbody>
+      {% for req in requests %}
+      <tr>
+        <td><a href="{{ url_for('request_detail', rid=req.id) }}" class="soft" style="font-family:ui-monospace,monospace;font-size:.8rem;">#{{ req.id }}</a></td>
+        <td>
+          <div class="title">{{ req.title }}</div>
+          <div class="desc">{{ req.description[:70] }}{% if req.description|length > 70 %}...{% endif %}</div>
+        </td>
+        <td><span class="priority" data-priority="{{ req.priority }}">{{ req.priority }}</span></td>
+        <td style="font-size:.83rem;">{{ req.trade_category }}</td>
+        <td><span class="status" data-status="{{ req.status }}">{{ req.status }}</span></td>
+        <td style="font-size:.83rem;">{{ req.contractor.name if req.contractor else '<span class="soft">--</span>'|safe }}</td>
+        <td class="right" style="font-variant-numeric:tabular-nums;font-size:.83rem;">
+          {% if req.invoice_amount %}{{ req.invoice_amount|money }}{% if req.invoice_paid %} <span class="badge" style="color:#4ade80;">paid</span>{% endif %}{% else %}<span class="soft">--</span>{% endif %}
+        </td>
+        <td class="right">{% if req.rating %}<span class="stars">{{ '★' * req.rating }}</span>{% else %}<span class="soft">--</span>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8">
+        <div class="empty">
+          <div class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          No requests yet.
+        </div>
+      </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

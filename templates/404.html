@@ -1,10 +1,107 @@
-{% extends "base.html" %}
-{% block title %}Not Found — {{ settings.company_name }}{% endblock %}
+﻿{% extends "base.html" %}
+{% block title %}Page not found — Mshibe Group{% endblock %}
 
 {% block content %}
-<section class="container py-5 text-center">
-  <h1 class="display-1 fw-bold text-primary">404</h1>
-  <p class="text-muted">We couldn't find that page.</p>
-  <a href="{{ url_for('index') }}" class="btn btn-primary">Back Home</a>
+
+<section class="platform-hero">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="platform-hero-grid">
+      <div>
+        <p class="eyebrow dark">MSHIBE GROUP <span></span> PAGE NOT FOUND</p>
+        <h1>This page<br><em>went missing.</em></h1>
+        <p class="platform-lead">
+          The page you were looking for has moved, been renamed, or never
+          existed. Nothing is broken — you just took a wrong turn.
+        </p>
+        <div class="hero-actions" style="margin-top:2rem">
+          <a href="{{ url_for('index') }}" class="hero-button hero-button-dark">
+            Back to home <i class="bi bi-arrow-up-right"></i>
+          </a>
+          <a href="{{ url_for('contact') }}" class="hero-text-link">
+            Report a broken link <i class="bi bi-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+      <div class="platform-number">404</div>
+    </div>
+  </div>
 </section>
+
+<section class="platform-intro">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4">
+        <p class="eyebrow dark">01 <span></span> WHAT HAPPENED</p>
+      </div>
+      <div class="col-lg-8">
+        <h2>The URL you entered <span>doesn't match anything we serve.</span></h2>
+        <p class="section-copy">
+          This could be a typo, a link from an old email, or a page that has
+          since moved. Whatever the cause, the rest of the site is still here.
+          Pick a direction from the list below and you'll be back on track in
+          seconds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-features">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row">
+      <div>
+        <p class="eyebrow dark">02 <span></span> WHERE TO GO</p>
+        <h2>Popular starting points.</h2>
+      </div>
+      <p>Four places most visitors are heading for when this page appears.</p>
+    </div>
+
+    <div class="feature-grid">
+      <article>
+        <span>01</span>
+        <i class="bi bi-house-door"></i>
+        <h3>Home</h3>
+        <p>Back to the Mshibe Group homepage — our mission, our businesses, our story.</p>
+        <a href="{{ url_for('index') }}" class="simple-link" style="margin-top:auto;padding-top:1rem">Go home <i class="bi bi-arrow-up-right"></i></a>
+      </article>
+      <article>
+        <span>02</span>
+        <i class="bi bi-grid"></i>
+        <h3>Our businesses</h3>
+        <p>Technology, media, commerce and business solutions — the four arms of Mshibe Group.</p>
+        <a href="{{ url_for('index') }}#businesses" class="simple-link" style="margin-top:auto;padding-top:1rem">Explore <i class="bi bi-arrow-up-right"></i></a>
+      </article>
+      <article>
+        <span>03</span>
+        <i class="bi bi-shop"></i>
+        <h3>Live products</h3>
+        <p>Chowza, Appoint and FixFlow — try the experiences we've already shipped.</p>
+        <a href="{{ url_for('index') }}#services" class="simple-link" style="margin-top:auto;padding-top:1rem">See products <i class="bi bi-arrow-up-right"></i></a>
+      </article>
+      <article>
+        <span>04</span>
+        <i class="bi bi-envelope"></i>
+        <h3>Contact us</h3>
+        <p>If you followed a link that should have worked, tell us — we'll fix it.</p>
+        <a href="{{ url_for('contact') }}" class="simple-link" style="margin-top:auto;padding-top:1rem">Get in touch <i class="bi bi-arrow-up-right"></i></a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="platform-cta">
+  <div class="container-fluid px-4 px-lg-5">
+    <p class="eyebrow">03 <span></span> LET'S GET YOU BACK</p>
+    <h2>Wrong turn.<br><em>Right direction.</em></h2>
+    <div class="hero-actions" style="margin-top:2rem">
+      <a href="{{ url_for('index') }}" class="hero-button hero-button-light">
+        Return to home <i class="bi bi-arrow-up-right"></i>
+      </a>
+      <a href="{{ url_for('contact') }}" class="hero-button hero-button-light" style="background:transparent;border:1px solid rgba(255,255,255,.3)">
+        Contact us <i class="bi bi-arrow-up-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

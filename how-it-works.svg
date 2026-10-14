@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <!-- Brand gradient -->
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d88a9a"/>
+      <stop offset="100%" stop-color="#e8a8b6"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7d8c4"/>
+      <stop offset="100%" stop-color="#efc9b2"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2b1f24"/>
+      <stop offset="100%" stop-color="#4a343d"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Arrow marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d88a9a"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#faf6f2"/>
+
+  <!-- Soft ambient orbs -->
+  <circle cx="120" cy="120" r="180" fill="url(#cream)" opacity="0.35"/>
+  <circle cx="1080" cy="680" r="200" fill="url(#rose)" opacity="0.22"/>
+
+  <!-- Title -->
+  <text x="600" y="70" text-anchor="middle" font-family="Playfair Display, serif"
+        font-size="44" font-weight="700" fill="#2b1f24" font-style="italic">
+    How Appoint Works
+  </text>
+  <text x="600" y="102" text-anchor="middle" font-size="15" fill="#8a7a80"
+        letter-spacing="4" font-weight="600">FROM BOOKING TO PAID — IN ONE FLOW</text>
+
+  <!-- =========================================================
+       STAGE 1 — CUSTOMER BOOKS
+       ========================================================= -->
+  <g id="stage1">
+    <!-- Card -->
+    <rect x="70" y="180" width="320" height="380" rx="26" fill="#fff"
+          stroke="#f0e6e0" filter="url(#soft)"/>
+    <text x="230" y="215" text-anchor="middle" font-size="11" fill="#d88a9a"
+          letter-spacing="3" font-weight="700">STEP 01</text>
+    <text x="230" y="248" text-anchor="middle" font-family="Playfair Display, serif"
+          font-size="24" font-weight="700" fill="#2b1f24">Customer books</text>
+
+    <!-- Phone mockup -->
+    <rect x="130" y="270" width="200" height="260" rx="18" fill="#faf6f2" stroke="#f0e6e0"/>
+    <!-- Screen fields -->
+    <rect x="150" y="292" width="160" height="26" rx="8" fill="#fff" stroke="#f0e6e0"/>
+    <text x="160" y="309" font-size="11" fill="#8a7a80">Service</text>
+    <rect x="150" y="328" width="160" height="26" rx="8" fill="#fff" stroke="#f0e6e0"/>
+    <text x="160" y="345" font-size="11" fill="#8a7a80">Date</text>
+    <rect x="150" y="364" width="160" height="26" rx="8" fill="#fff" stroke="#f0e6e0"/>
+    <text x="160" y="381" font-size="11" fill="#8a7a80">Time</text>
+
+    <!-- Payment options -->
+    <rect x="150" y="400" width="160" height="26" rx="8" fill="#fff" stroke="#d88a9a"/>
+    <circle cx="164" cy="413" r="6" fill="#d88a9a"/>
+    <text x="178" y="417" font-size="11" fill="#2b1f24" font-weight="600">Pay with YOCO</text>
+    <rect x="150" y="432" width="160" height="26" rx="8" fill="#fff" stroke="#f0e6e0"/>
+    <circle cx="164" cy="445" r="6" fill="none" stroke="#d0c4c8"/>
+    <text x="178" y="449" font-size="11" fill="#8a7a80">Pay in person</text>
+
+    <!-- Button -->
+    <rect x="150" y="470" width="160" height="34" rx="17" fill="url(#rose)"/>
+    <text x="230" y="492" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">
+      Confirm appointment →
+    </text>
+
+    <!-- Animated cursor tap -->
+    <circle cx="230" cy="487" r="14" fill="#d88a9a" opacity="0.25">
+      <animate attributeName="r" values="10;26;10" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.35;0;0.35" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Arrow 1 → 2 -->
+  <path d="M400 370 C 440 370, 440 370, 470 370" stroke="#d88a9a" stroke-width="2.5"
+        fill="none" marker-end="url(#arrow)" stroke-dasharray="6 6">
+    <animate attributeName="stroke-dashoffset" from="0" to="-24" dur="1.2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- =========================================================
+       STAGE 2 — PAYMENT ROUTING (fork)
+       ========================================================= -->
+  <g id="stage2">
+    <rect x="470" y="180" width="260" height="380" rx="26" fill="#fff"
+          stroke="#f0e6e0" filter="url(#soft)"/>
+    <text x="600" y="215" text-anchor="middle" font-size="11" fill="#d88a9a"
+          letter-spacing="3" font-weight="700">STEP 02</text>
+    <text x="600" y="248" text-anchor="middle" font-family="Playfair Display, serif"
+          font-size="24" font-weight="700" fill="#2b1f24">Payment routing</text>
+
+    <!-- YOCO path -->
+    <rect x="495" y="280" width="210" height="110" rx="16" fill="#fdf6f4" stroke="#f0d8dd"/>
+    <text x="600" y="305" text-anchor="middle" font-size="12" fill="#b86c7c" font-weight="700">YOCO ONLINE</text>
+    <text x="600" y="330" text-anchor="middle" font-size="11" fill="#8a7a80">Redirect to secure checkout</text>
+    <text x="600" y="350" text-anchor="middle" font-size="11" fill="#8a7a80">Status: pending_payment</text>
+    <text x="600" y="372" text-anchor="middle" font-size="11" fill="#8a7a80">→ verify → paid</text>
+
+    <!-- divider -->
+    <line x1="495" y1="410" x2="705" y2="410" stroke="#f0e6e0"/>
+
+    <!-- Cash path -->
+    <rect x="495" y="425" width="210" height="110" rx="16" fill="#fbfaf7" stroke="#e8e0da"/>
+    <text x="600" y="450" text-anchor="middle" font-size="12" fill="#8a7a80" font-weight="700">CASH IN PERSON</text>
+    <text x="600" y="475" text-anchor="middle" font-size="11" fill="#8a7a80">Book now, pay at visit</text>
+    <text x="600" y="495" text-anchor="middle" font-size="11" fill="#8a7a80">Status: confirmed</text>
+    <text x="600" y="517" text-anchor="middle" font-size="11" fill="#8a7a80">→ owner marks paid</text>
+
+    <!-- Pulse on YOCO -->
+    <rect x="495" y="280" width="210" height="110" rx="16" fill="none" stroke="#d88a9a" stroke-width="2">
+      <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.4s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Arrow 2 → 3 -->
+  <path d="M730 370 C 770 370, 770 370, 800 370" stroke="#d88a9a" stroke-width="2.5"
+        fill="none" marker-end="url(#arrow)" stroke-dasharray="6 6">
+    <animate attributeName="stroke-dashoffset" from="0" to="-24" dur="1.2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- =========================================================
+       STAGE 3 — CONFIRMATION + EMAIL
+       ========================================================= -->
+  <g id="stage3">
+    <rect x="800" y="180" width="320" height="380" rx="26" fill="#fff"
+          stroke="#f0e6e0" filter="url(#soft)"/>
+    <text x="960" y="215" text-anchor="middle" font-size="11" fill="#d88a9a"
+          letter-spacing="3" font-weight="700">STEP 03</text>
+    <text x="960" y="248" text-anchor="middle" font-family="Playfair Display, serif"
+          font-size="24" font-weight="700" fill="#2b1f24">Confirmed</text>
+
+    <!-- Success circle -->
+    <circle cx="960" cy="330" r="42" fill="url(#green)" opacity="0.15"/>
+    <circle cx="960" cy="330" r="30" fill="url(#green)"/>
+    <path d="M946 330 L957 341 L976 320" stroke="#fff" stroke-width="4"
+          fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <animate attributeName="stroke-dasharray" from="0 40" to="40 0"
+               dur="0.8s" begin="0.4s" fill="freeze"/>
+    </path>
+
+    <text x="960" y="395" text-anchor="middle" font-size="14" font-weight="700" fill="#2b1f24">
+      Booking reference issued
+    </text>
+    <text x="960" y="418" text-anchor="middle" font-size="11" fill="#8a7a80">
+      APT-4F9A21
+    </text>
+
+    <!-- Email chip -->
+    <rect x="860" y="445" width="200" height="40" rx="20" fill="#fdf6f4" stroke="#f0d8dd"/>
+    <text x="960" y="470" text-anchor="middle" font-size="11" fill="#b86c7c" font-weight="700">
+      ✉ Confirmation email sent
+    </text>
+
+    <!-- Popup hint -->
+    <rect x="860" y="500" width="200" height="40" rx="20" fill="url(#ink)"/>
+    <text x="960" y="525" text-anchor="middle" font-size="11" fill="#f7d8c4" font-weight="700">
+      🎉 Celebration popup
+    </text>
+  </g>
+
+  <!-- =========================================================
+       BOTTOM: WHAT HAPPENS BEHIND THE SCENES
+       ========================================================= -->
+  <g id="backend">
+    <text x="600" y="625" text-anchor="middle" font-size="11" fill="#d88a9a"
+          letter-spacing="3" font-weight="700">BEHIND THE SCENES</text>
+
+    <!-- Backend nodes -->
+    <rect x="90" y="650" width="200" height="70" rx="18" fill="#fff" stroke="#f0e6e0"/>
+    <text x="190" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#2b1f24">Flask app.py</text>
+    <text x="190" y="700" text-anchor="middle" font-size="10" fill="#8a7a80">Routes · auth · logic</text>
+
+    <rect x="310" y="650" width="200" height="70" rx="18" fill="#fff" stroke="#f0e6e0"/>
+    <text x="410" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#2b1f24">SQLite / models</text>
+    <text x="410" y="700" text-anchor="middle" font-size="10" fill="#8a7a80">User · Business · Appt</text>
+
+    <rect x="530" y="650" width="200" height="70" rx="18" fill="#fff" stroke="#f0e6e0"/>
+    <text x="630" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#2b1f24">YOCO API</text>
+    <text x="630" y="700" text-anchor="middle" font-size="10" fill="#8a7a80">Checkout · verify</text>
+
+    <rect x="750" y="650" width="200" height="70" rx="18" fill="#fff" stroke="#f0e6e0"/>
+    <text x="850" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#2b1f24">Resend email</text>
+    <text x="850" y="700" text-anchor="middle" font-size="10" fill="#8a7a80">Confirmation · receipt</text>
+
+    <rect x="970" y="650" width="150" height="70" rx="18" fill="#fff" stroke="#f0e6e0"/>
+    <text x="1045" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#2b1f24">Owner dashboard</text>
+    <text x="1045" y="700" text-anchor="middle" font-size="10" fill="#8a7a80">Calendar · status</text>
+  </g>
+
+  <!-- Floating status dots traveling along the flow -->
+  <circle r="6" fill="#d88a9a" filter="url(#glow)">
+    <animateMotion dur="6s" repeatCount="indefinite"
+      path="M230,487 C 400,370 470,370 600,370 C 730,370 800,370 960,330"/>
+  </circle>
+
+  <!-- Progress bar at bottom -->
+  <rect x="70" y="760" width="1060" height="6" rx="3" fill="#f0e6e0"/>
+  <rect x="70" y="760" width="0" height="6" rx="3" fill="url(#rose)">
+    <animate attributeName="width" from="0" to="1060" dur="8s" repeatCount="indefinite"/>
+  </rect>
+</svg>

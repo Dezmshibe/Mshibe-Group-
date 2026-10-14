@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}FixFlow — Property maintenance, tracked{% endblock %}
+
+{% block content %}
+
+<section class="platform-hero">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="platform-hero-grid">
+      <div>
+        <p class="eyebrow dark">MSHIBE GROUP <span></span> PROPERTY PLATFORM</p>
+        <h1>FixFlow<br><em>maintenance, tracked.</em></h1>
+        <p class="platform-lead">
+          One shared record for every repair — from a tenant's first report to a
+          contractor's final invoice. Landlords, tenants and contractors all
+          work from the same page, in real time.
+        </p>
+        <div class="hero-actions" style="margin-top:2rem">
+          <a href="/fixflow/" target="_blank" rel="noopener" class="hero-button hero-button-dark">
+            Open FixFlow <i class="bi bi-arrow-up-right"></i>
+          </a>
+          <a href="{{ url_for('contact') }}" class="hero-text-link">
+            Talk to us about it <i class="bi bi-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+      <div class="platform-number">03</div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-intro">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4">
+        <p class="eyebrow dark">01 <span></span> THE PROBLEM</p>
+      </div>
+      <div class="col-lg-8">
+        <h2>Repairs get lost in <span>WhatsApp threads and forwarded emails.</span></h2>
+        <p class="section-copy">
+          A tenant reports a leak. The landlord forwards it to a contractor. The
+          contractor sends a quote by SMS. The invoice arrives weeks later in a
+          different channel. FixFlow replaces that chaos with one timeline
+          everyone can see.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-features">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="section-heading-row">
+      <div>
+        <p class="eyebrow dark">02 <span></span> WHAT IT DOES</p>
+        <h2>Four roles. One record.</h2>
+      </div>
+      <p>Every party — landlord, tenant, contractor, and the money — works from the same file.</p>
+    </div>
+
+    <div class="feature-grid">
+      <article>
+        <span>01</span>
+        <i class="bi bi-house-door"></i>
+        <h3>Landlords &amp; managers</h3>
+        <p>Every open issue across the portfolio, on one page. Assign contractors, approve quotes, track outstanding money.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <i class="bi bi-person"></i>
+        <h3>Tenants</h3>
+        <p>Report a problem in seconds, attach a photo, and watch it move through every stage until it's fixed.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <i class="bi bi-tools"></i>
+        <h3>Contractors</h3>
+        <p>See only the jobs assigned to you. Submit a quote, upload repair photos, and invoice from the same screen.</p>
+      </article>
+      <article>
+        <span>04</span>
+        <i class="bi bi-graph-up"></i>
+        <h3>Analytics</h3>
+        <p>Spend by trade, property and month. Top contractors, average resolution time, collection rate — all live.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="platform-intro">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4">
+        <p class="eyebrow dark">03 <span></span> THE WORKFLOW</p>
+      </div>
+      <div class="col-lg-8">
+        <h2>Nine stages. <span>Nothing lost between them.</span></h2>
+        <p class="section-copy">
+          Reported → Assigned → Quote Pending → Quote Approved → In Progress →
+          Completed → Invoiced → Paid → Closed. Every transition is logged with
+          who and when, so you can always answer "where is this job?" in one
+          click.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-cta">
+  <div class="container-fluid px-4 px-lg-5">
+    <p class="eyebrow">04 <span></span> READY TO USE</p>
+    <h2>Fix the way you<br><em>fix things.</em></h2>
+    <div class="hero-actions" style="margin-top:2rem">
+      <a href="/fixflow/" target="_blank" rel="noopener" class="hero-button hero-button-light">
+        Open FixFlow <i class="bi bi-arrow-up-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

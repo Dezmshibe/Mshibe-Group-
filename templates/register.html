@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>Create your account</h1>
+    <p class="muted">Start free — no credit card required.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-list">
+          {% for category, msg in messages %}
+            <li class="flash flash-{{ category }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}" novalidate>
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text" required autocomplete="name">
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email">
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required
+             minlength="8" autocomplete="new-password">
+
+      <button class="btn" type="submit">Create account &rarr;</button>
+    </form>
+
+    <p class="muted">
+      Already have an account?
+      <a href="{{ url_for('login') }}">Sign in</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

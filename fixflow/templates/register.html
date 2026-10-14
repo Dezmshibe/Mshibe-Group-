@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:480px;margin:0 auto;">
+  <h2>Create account</h2>
+  <p class="sub">Choose the role that fits you</p>
+  <form method="post">
+    <div class="form-row"><label>Full name</label><input type="text" name="name" required></div>
+    <div class="form-row"><label>Email</label><input type="email" name="email" required></div>
+    <div class="form-row"><label>Phone</label><input type="text" name="phone"></div>
+    <div class="form-row"><label>Password</label><input type="password" name="password" required minlength="6"></div>
+    <div class="form-row"><label>Role</label>
+      <select name="role" id="role" onchange="toggleContractor()">
+        <option value="landlord">Landlord / Property manager</option>
+        <option value="tenant">Tenant</option>
+        <option value="contractor">Contractor</option>
+      </select>
+    </div>
+    <div id="contractor-fields" style="display:none;">
+      <div class="form-row"><label>Company</label><input type="text" name="company"></div>
+      <div class="form-row"><label>Trades (comma separated)</label><input type="text" name="trades" placeholder="Plumbing, Electrical"></div>
+    </div>
+    <button type="submit">Create account</button>
+  </form>
+  <p class="muted" style="text-align:center;margin:.9rem 0 0;font-size:.83rem;">
+    Already registered? <a href="{{ url_for('login') }}">Sign in</a>
+  </p>
+</div>
+<script>
+function toggleContractor(){
+  document.getElementById('contractor-fields').style.display =
+    document.getElementById('role').value === 'contractor' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

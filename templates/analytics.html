@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+{% block title %}Analytics &middot; FixFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>Analytics</h1>
+    <div class="sub">Spend, contractors, and performance across your portfolio</div>
+  </div>
+  <div class="actions">
+    <div class="range-toggle" id="rangeToggle">
+      <button type="button" data-range="3">3M</button>
+      <button type="button" data-range="6">6M</button>
+      <button type="button" class="active" data-range="12">12M</button>
+    </div>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('landlord_dashboard') }}">&larr; Dashboard</a>
+  </div>
+</div>
+
+<!-- TOP STATS -->
+<div class="grid cols-4">
+  <div class="stat">
+    <div class="label">Total invoiced</div>
+    <div class="value">{{ total_invoiced|money }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Paid</div>
+    <div class="value success">{{ total_paid|money }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Outstanding</div>
+    <div class="value danger">{{ outstanding|money }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Jobs &middot; open / total</div>
+    <div class="value">{{ open_jobs }}<span style="color:var(--text-3);font-size:1.1rem;"> / {{ total_jobs }}</span></div>
+  </div>
+</div>
+
+<div class="grid cols-4">
+  <div class="stat">
+    <div class="label">Avg cost per job</div>
+    <div class="value">{{ avg_cost|money }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Avg resolution</div>
+    <div class="value">{% if avg_days is not none %}{{ '%.1f'|format(avg_days) }}<span style="color:var(--text-3);font-size:.9rem;margin-left:.15rem;">d</span>{% else %}&mdash;{% endif %}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Avg rating</div>
+    <div class="value">{% if avg_rating %}{{ '%.2f'|format(avg_rating) }}<span class="stars" style="font-size:1rem;margin-left:.15rem;">&#9733;</span>{% else %}&mdash;{% endif %}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Collection rate</div>
+    <div class="value success">
+      {% if total_invoiced > 0 %}{{ '%.0f'|format(total_paid / total_invoiced * 100) }}%{% else %}&mdash;{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- TREND -->
+<div class="card">
+  <div class="chart-head">
+    <h3>Invoiced vs Paid</h3>
+    <div class="chart-legend-note" id="trendNote">Last 12 months</div>
+  </div>
+  <div class="chart-box" style="height:280px;">
+    <canvas id="trendChart"></canvas>
+  </div>
+</div>
+
+<!-- TWO COLUMN: Trade + Status -->
+<div class="grid cols-2">
+  <div class="card">
+    <div class="chart-head">
+      <h3>Spend by trade</h3>
+    </div>
+    <div class="chart-box" style="height:260px;">
+      <canvas id="tradeChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="chart-head">
+      <h3>Jobs by status</h3>
+    </div>
+    <div class="chart-box" style="height:260px;">
+      <canvas id="statusChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TWO COLUMN: Property + Priority -->
+<div class="grid cols-2">
+  <div class="card">
+    <div class="chart-head">
+      <h3>Spend by property</h3>
+    </div>
+    <div class="chart-box" style="height:260px;">
+      <canvas id="propChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="chart-head">
+      <h3>Jobs by priority</h3>
+    </div>
+    <div class="chart-box" style="height:260px;">
+      <canvas id="priorityChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACTORS TABLE -->
+<div class="card">
+  <div class="chart-head">
+    <h3>Top contractors</h3>
+    <button type="button" class="btn btn-secondary btn-sm" id="sortBtn" data-sort="jobs">
+      Sort by: Jobs
+    </button>
+  </div>
+  <div class="table-wrap">
+    <table id="contractorsTable">
+      <thead>
+        <tr>
+          <th>Contractor</th>
+          <th class="right" data-col="jobs">Jobs</th>
+          <th class="right" data-col="invoiced">Invoiced</th>
+        </tr>
+      </thead>
+      <tbody id="contractorsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONTRACTOR BAR -->
+<div class="card">
+  <div class="chart-head">
+    <h3>Contractor spend</h3>
+  </div>
+  <div class="chart-box" style="height:280px;">
+    <canvas id="contractorChart"></canvas>
+  </div>
+</div>
+
+<!-- DATA FOR JS -->
+<script>
+  window.FIXFLOW = {
+    monthLabels:    {{ month_labels|tojson }},
+    monthInvoiced:  {{ month_invoiced|tojson }},
+    monthPaid:      {{ month_paid|tojson }},
+    byTrade:        {{ by_trade|tojson }},
+    byStatus:       {{ by_status|tojson }},
+    byProp:         {{ by_prop|tojson }},
+    byPriority:     {{ by_priority|tojson }},
+    topContractors: {{ top_contractors|tojson }}
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('.chart-box').forEach(function (b) {
+      b.innerHTML = '<div class="empty" style="padding:2rem;">Charts unavailable — could not load Chart.js. Check your network connection.</div>';
+    });
+    return;
+  }
+
+  // ---- theme ----
+  const C = {
+    brass:   '#c9a961',
+    info:    '#7d8a9c',
+    success: '#7a9161',
+    warning: '#b8935a',
+    danger:  '#a45a4a',
+    purple:  '#8a7aa0',
+    cyan:    '#6f949a',
+    teal:    '#6f9188',
+    orange:  '#b8834f',
+    stone:   '#6e6252',
+    text:    '#ece3d1',
+    text2:   '#a89a83',
+    text3:   '#6e6252',
+    border:  '#2a231d',
+    panel:   '#201c17'
+  };
+  Chart.defaults.color = C.text2;
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size = 12;
+
+  const gridStyle = { color: C.border, drawTicks: false };
+  const scaleCommon = {
+    grid: gridStyle,
+    border: { color: C.border },
+    ticks: { color: C.text3, padding: 8 }
+  };
+
+  const money = function (v) {
+    return 'R' + Number(v).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  // ---- TREND LINE ----
+  const F = window.FIXFLOW;
+  const trendCtx = document.getElementById('trendChart');
+  let trendChart = new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: F.monthLabels,
+      datasets: [
+        {
+          label: 'Invoiced',
+          data: F.monthInvoiced,
+          borderColor: C.brass,
+          backgroundColor: 'rgba(201,169,97,.10)',
+          borderWidth: 1.5,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: C.brass,
+          pointBorderColor: C.panel,
+          pointBorderWidth: 2,
+          tension: 0.32,
+          fill: true
+        },
+        {
+          label: 'Paid',
+          data: F.monthPaid,
+          borderColor: C.success,
+          backgroundColor: 'rgba(122,145,97,.08)',
+          borderWidth: 1.5,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: C.success,
+          pointBorderColor: C.panel,
+          pointBorderWidth: 2,
+          tension: 0.32,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', padding: 16, color: C.text2 }
+        },
+        tooltip: {
+          backgroundColor: '#17130f',
+          borderColor: C.border,
+          borderWidth: 1,
+          titleColor: C.text,
+          bodyColor: C.text2,
+          padding: 12,
+          cornerRadius: 4,
+          displayColors: true,
+          usePointStyle: true,
+          callbacks: {
+            label: function (ctx) { return ' ' + ctx.dataset.label + ': ' + money(ctx.parsed.y); }
+          }
+        }
+      },
+      scales: {
+        x: Object.assign({}, scaleCommon, { grid: { display: false } }),
+        y: Object.assign({}, scaleCommon, {
+          ticks: { color: C.text3, padding: 8, callback: function (v) {
+            if (v >= 1000) return 'R' + (v/1000).toFixed(0) + 'k';
+            return 'R' + v;
+          } }
+        })
+      }
+    }
+  });
+
+  // ---- RANGE TOGGLE ----
+  document.querySelectorAll('#rangeToggle button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#rangeToggle button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const n = parseInt(btn.dataset.range, 10);
+      const total = F.monthLabels.length;
+      const slice = Math.min(n, total);
+      trendChart.data.labels = F.monthLabels.slice(total - slice);
+      trendChart.data.datasets[0].data = F.monthInvoiced.slice(total - slice);
+      trendChart.data.datasets[1].data = F.monthPaid.slice(total - slice);
+      trendChart.update();
+      document.getElementById('trendNote').textContent = 'Last ' + slice + ' months';
+    });
+  });
+
+  // ---- helpers ----
+  function doughnut(canvasId, rows, palette) {
+    const el = document.getElementById(canvasId);
+    if (!el) return null;
+    const labels = rows.map(function (r) { return r[0]; });
+    const values = rows.map(function (r) { return Number(r[1]); });
+    if (!values.length) {
+      el.parentNode.innerHTML = '<div class="empty" style="padding:2rem;">No data yet.</div>';
+      return null;
+    }
+    return new Chart(el, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: palette,
+          borderColor: C.panel,
+          borderWidth: 2,
+          hoverBorderColor: C.brass,
+          hoverBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', padding: 12, color: C.text2 }
+          },
+          tooltip: {
+            backgroundColor: '#17130f',
+            borderColor: C.border,
+            borderWidth: 1,
+            titleColor: C.text,
+            bodyColor: C.text2,
+            padding: 12,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: function (ctx) {
+                const total = ctx.dataset.data.reduce(function (a, b) { return a + Number(b); }, 0);
+                const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                return ' ' + ctx.label + ': ' + money(ctx.parsed) + '  (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function doughnutCount(canvasId, rows, palette) {
+    const el = document.getElementById(canvasId);
+    if (!el) return null;
+    if (!rows.length) {
+      el.parentNode.innerHTML = '<div class="empty" style="padding:2rem;">No data yet.</div>';
+      return null;
+    }
+    return new Chart(el, {
+      type: 'doughnut',
+      data: {
+        labels: rows.map(function (r) { return r[0]; }),
+        datasets: [{
+          data: rows.map(function (r) { return Number(r[1]); }),
+          backgroundColor: palette,
+          borderColor: C.panel,
+          borderWidth: 2,
+          hoverBorderColor: C.brass,
+          hoverBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', padding: 12, color: C.text2 }
+          },
+          tooltip: {
+            backgroundColor: '#17130f',
+            borderColor: C.border,
+            borderWidth: 1,
+            titleColor: C.text,
+            bodyColor: C.text2,
+            padding: 12,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: function (ctx) {
+                const total = ctx.dataset.data.reduce(function (a, b) { return a + Number(b); }, 0);
+                const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                return ' ' + ctx.label + ': ' + ctx.parsed + '  (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function barChart(canvasId, rows, color, horizontal) {
+    const el = document.getElementById(canvasId);
+    if (!el) return null;
+    if (!rows.length) {
+      el.parentNode.innerHTML = '<div class="empty" style="padding:2rem;">No data yet.</div>';
+      return null;
+    }
+    const sorted = rows.slice().sort(function (a, b) { return Number(b[1]) - Number(a[1]); });
+    return new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(function (r) { return r[0]; }),
+        datasets: [{
+          label: 'Amount',
+          data: sorted.map(function (r) { return Number(r[1]); }),
+          backgroundColor: color,
+          hoverBackgroundColor: C.brass,
+          borderRadius: 3,
+          borderSkipped: false,
+          barThickness: horizontal ? 14 : 'flex',
+          maxBarThickness: 32
+        }]
+      },
+      options: {
+        indexAxis: horizontal ? 'y' : 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#17130f',
+            borderColor: C.border,
+            borderWidth: 1,
+            titleColor: C.text,
+            bodyColor: C.text2,
+            padding: 12,
+            cornerRadius: 4,
+            callbacks: {
+              label: function (ctx) { return ' ' + money(ctx.parsed[horizontal ? 'x' : 'y']); }
+            }
+          }
+        },
+        scales: horizontal ? {
+          x: Object.assign({}, scaleCommon, { ticks: { color: C.text3, padding: 8, callback: function (v) {
+            if (v >= 1000) return 'R' + (v/1000).toFixed(0) + 'k';
+            return 'R' + v;
+          } } }),
+          y: Object.assign({}, scaleCommon, { grid: { display: false } })
+        } : {
+          x: Object.assign({}, scaleCommon, { grid: { display: false } }),
+          y: Object.assign({}, scaleCommon, { ticks: { color: C.text3, padding: 8, callback: function (v) {
+            if (v >= 1000) return 'R' + (v/1000).toFixed(0) + 'k';
+            return 'R' + v;
+          } } })
+        }
+      }
+    });
+  }
+
+  // ---- build charts ----
+  doughnut('tradeChart', F.byTrade, [C.brass, C.info, C.success, C.warning, C.purple, C.cyan, C.orange]);
+  barChart('propChart', F.byProp, 'rgba(201,169,97,.55)', false);
+  doughnutCount('statusChart', F.byStatus, [C.stone, C.info, C.warning, C.purple, C.cyan, C.teal, C.orange, C.success, C.text3]);
+  doughnutCount('priorityChart', F.byPriority, [C.success, C.warning, C.orange, C.danger]);
+
+  // ---- contractors chart (horizontal bars) ----
+  const cRows = F.topContractors.map(function (r) { return [r[0], r[2]]; });
+  barChart('contractorChart', cRows, 'rgba(122,145,97,.55)', true);
+
+  // ---- contractors table (sortable) ----
+  const tbody = document.getElementById('contractorsBody');
+  const sortBtn = document.getElementById('sortBtn');
+  let sortMode = 'jobs';
+
+  function renderTable() {
+    const rows = F.topContractors.slice();
+    rows.sort(function (a, b) {
+      if (sortMode === 'jobs') return b[1] - a[1];
+      return b[2] - a[2];
+    });
+    tbody.innerHTML = rows.map(function (r) {
+      return '<tr>' +
+        '<td>' + escapeHtml(r[0]) + '</td>' +
+        '<td class="right">' + r[1] + '</td>' +
+        '<td class="right" style="font-variant-numeric:tabular-nums;">' + money(r[2]) + '</td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="3" class="muted">No data yet.</td></tr>';
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  sortBtn.addEventListener('click', function () {
+    sortMode = (sortMode === 'jobs') ? 'invoiced' : 'jobs';
+    sortBtn.textContent = (sortMode === 'jobs') ? 'Sort by: Jobs' : 'Sort by: Invoiced';
+    renderTable();
+  });
+
+  renderTable();
+})();
+</script>
+
+{% endblock %}

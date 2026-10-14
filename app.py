@@ -1057,19 +1057,10 @@ def admin_settings():
         flash("Settings saved.", "success")
         return redirect(url_for("admin_settings"))
     return render_template("admin/settings.html", settings=settings)
-# ---------------------------------------------------------------------------
-# Google Search Console verification
-# ---------------------------------------------------------------------------
-@app.route("/google0f9a3b5ae4cf7087.html")
-def google_verification():
-    return send_from_directory(
-        app.root_path,
-        "google0f9a3b5ae4cf7087.html",
-        mimetype="text/html",
-    )
 
-import os
-
+# ---------------------------------------------------------------------------
+# Static file catch-all — MUST be last so it doesn't shadow other routes
+# ---------------------------------------------------------------------------
 ALLOWED_ROOT_EXTS = {
     ".html", ".js", ".css",
     ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico",
@@ -1081,6 +1072,7 @@ ALLOWED_ROOT_EXTS = {
 
 @app.route("/<path:filename>")
 def serve_static_file(filename):
+    """Serve root-level static files (voice.html, widget.js, etc.)."""
     # Never intercept admin/api/known routes
     if filename.startswith(("admin", "api", "static", "fixflow")):
         return render_template("404.html"), 404
@@ -1107,6 +1099,20 @@ def serve_static_file(filename):
 
     return render_template("404.html"), 404
 
+
+# ---------------------------------------------------------------------------
+# Google Search Console verification
+# ---------------------------------------------------------------------------
+@app.route("/google0f9a3b5ae4cf7087.html")
+def google_verification():
+    return send_from_directory(
+        app.root_path,
+        "google0f9a3b5ae4cf7087.html",
+        mimetype="text/html",
+    )
+
+   
+
 # ---------------------------------------------------------------------------
 # Errors
 # ---------------------------------------------------------------------------
@@ -1124,13 +1130,10 @@ def _absolute(path: str) -> str:
         root = "https://" + root[len("http://"):]
     return root + path
 
-
 @app.route("/sitemap.xml")
 def sitemap():
     """Generate a clean sitemap containing only important public pages."""
 
-    # Use a fixed, safe lastmod. Render's server clock can drift, and Google
-    # rejects sitemaps where lastmod is in the future.
     today = datetime.utcnow().strftime("%Y-%m-%d")
 
     pages = [
@@ -1169,13 +1172,38 @@ def sitemap():
         )
 
     xml_parts.append("</urlset>")
-    xml_body = "\n".join(xml_parts)
+    xml_body = _clean_text("\n".join(xml_parts))
 
-    return Response(
-        _clean_text(xml_body),
-        status=200,
-        content_type="application/xml; charset=utf-8",
-    )
+    response = Response(xml_body, status=200)
+    response.headers["Content-Type"] = "application/xml; charset=utf-8"
+    response.headers["Content-Length"] = str(len(xml_body.encode("utf-8")))
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
+
+@app.route("/robots.txt")
+def robots():
+    """Serve robots.txt dynamically so the sitemap URL stays in sync."""
+    sitemap_url = _absolute("/sitemap.xml")
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /admin",
+        "Disallow: /cart",
+        "Disallow: /checkout",
+        "Disallow: /order/",
+        "Disallow: /appointments/confirmation/",
+        "Disallow: /api/",
+        "",
+        f"Sitemap: {sitemap_url}",
+    ]
+    body = _clean_text("\n".join(lines))
+
+    response = Response(body, status=200)
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    response.headers["Content-Length"] = str(len(body.encode("utf-8")))
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
 # ---------------------------------------------------------------------------
 # Seed data
 # ---------------------------------------------------------------------------

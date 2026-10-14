@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Contractors</h1>
+    <div class="sub">Everyone you can assign jobs to</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th>Name</th><th>Company</th><th>Trades</th><th>Contact</th>
+      <th class="right">Jobs</th><th class="right">Open</th><th class="right">Invoiced</th><th class="right">Rating</th>
+    </tr></thead>
+    <tbody>
+      {% for c in contractors %}
+        {% set s = stats[c.id] %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <span class="avatar">{{ c.name[:1]|upper }}</span>
+              <span style="font-weight:600;font-size:.88rem;">{{ c.name }}</span>
+            </div>
+          </td>
+          <td style="font-size:.83rem;">{{ c.company or '<span class="soft">--</span>'|safe }}</td>
+          <td style="font-size:.83rem;">{{ c.trades or '<span class="soft">--</span>'|safe }}</td>
+          <td class="muted" style="font-size:.8rem;">{{ c.phone or '' }}<br>{{ c.email }}</td>
+          <td class="right">{{ s.jobs }}</td>
+          <td class="right">{{ s.open }}</td>
+          <td class="right" style="font-variant-numeric:tabular-nums;">{{ s.invoiced|money }}</td>
+          <td class="right">{% if s.avg_rating %}<span class="stars">{{ '%.2f'|format(s.avg_rating) }} ★</span>{% else %}<span class="soft">--</span>{% endif %}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8">
+          <div class="empty">
+            <div class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+            No contractors registered.
+          </div>
+        </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

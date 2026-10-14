@@ -1,48 +1,49 @@
-# Environment / secrets — NEVER commit these
-.env
-.env.local
-.env.*.local
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-instance/
-
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*.so
 .venv/
 venv/
 env/
-ENV/
-build/
-dist/
-*.egg-info/
 
-# Test / scratch
-body.json
-test.json
-*.log
+# Env & secrets
+.env
+.env.*
+!.env.example
 
-# IDE / editor
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups / old versions
+_old_files/
+*.bak
+*.backup
+
+# One-off scripts (personal tooling — do not ship)
+fix_*.py
+make_*.py
+pgrade_ui.py
+recolor.py
+remove_*.py
+setup_templates.py
+unify_*.py
+restore_from_github.ps1
+pull_mshibe.ps1
+sync.ps1
+recover.ps1
+run_all.ps1
+seed_demo.py
+add_charts.py
+
+# Scratch / test
+tests/
+scripts/
+prompts/
+pathway.json
+config.example.json
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Caches
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Old experiment folders (safe to ignore)
-mshibe-receptionist/
-mshibe-voice/

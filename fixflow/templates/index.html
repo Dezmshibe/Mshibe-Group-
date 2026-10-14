@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}FixFlow{% endblock %}
+
+{% block content %}
+
+{% if current_user %}
+
+<div class="page-header">
+  <div>
+    <h1>Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
+    <div class="sub">Everything across your properties, in one place.</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('dashboard') }}">Open dashboard</a>
+    <a class="btn btn-secondary" href="{{ url_for('calendar') }}">Calendar</a>
+  </div>
+</div>
+
+<div class="grid cols-3">
+  <div class="card">
+    <h3>Your dashboard</h3>
+    <p class="muted" style="margin:0 0 1rem;">Every open job, assignment, and invoice across your portfolio.</p>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('dashboard') }}">Open dashboard</a>
+  </div>
+  <div class="card">
+    <h3>Notifications</h3>
+    <p class="muted" style="margin:0 0 1rem;">Comments, status changes, and approvals, all in one feed.</p>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('notifications') }}">Open feed</a>
+  </div>
+  <div class="card">
+    <h3>Your profile</h3>
+    <p class="muted" style="margin:0 0 1rem;">Update your details, company, and password.</p>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('profile') }}">Edit profile</a>
+  </div>
+</div>
+
+{% else %}
+
+<section class="hero">
+  <h1>Property maintenance, beautifully tracked.</h1>
+  <p>From a tenant's first report to a paid invoice — everyone sees the same page. Landlords, tenants, and contractors, all on one timeline.</p>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('register') }}">Start free &rarr;</a>
+    <a class="btn btn-secondary" href="{{ url_for('login') }}">Sign in</a>
+  </div>
+</section>
+
+<div class="grid cols-4" style="margin-bottom:1.25rem;">
+  <div class="stat">
+    <div class="icon">&#9679;</div>
+    <div class="label">Tracked stages</div>
+    <div class="value">9</div>
+  </div>
+  <div class="stat">
+    <div class="icon" style="background:rgba(124,92,255,.16);color:#a78bfa;">&#9679;</div>
+    <div class="label">Role dashboards</div>
+    <div class="value">3</div>
+  </div>
+  <div class="stat">
+    <div class="icon" style="background:rgba(34,197,94,.16);color:#4ade80;">&#9679;</div>
+    <div class="label">Audit trail</div>
+    <div class="value">100%</div>
+  </div>
+  <div class="stat">
+    <div class="icon" style="background:rgba(255,224,102,.16);color:#ffe066;">&#9679;</div>
+    <div class="label">To try it</div>
+    <div class="value">R0</div>
+  </div>
+</div>
+
+<div class="grid cols-3" style="margin-bottom:1.25rem;">
+  <div class="feature">
+    <h3><span class="icon">&#127968;</span> Landlords</h3>
+    <p class="muted" style="margin:0 0 .75rem;font-size:.9rem;">Every open issue across your portfolio, on one page. Assign, approve, and settle.</p>
+    <ul>
+      <li>Properties &amp; units</li>
+      <li>Spend analytics per property</li>
+      <li>CSV export &amp; audit trail</li>
+    </ul>
+  </div>
+  <div class="feature">
+    <h3><span class="icon" style="background:rgba(124,92,255,.16);color:#a78bfa;">&#128100;</span> Tenants</h3>
+    <p class="muted" style="margin:0 0 .75rem;font-size:.9rem;">Report a problem in seconds, attach a photo, and watch it move through every stage.</p>
+    <ul>
+      <li>Photo &amp; description uploads</li>
+      <li>Live status tracking</li>
+      <li>Rate the finished job</li>
+    </ul>
+  </div>
+  <div class="feature">
+    <h3><span class="icon" style="background:rgba(34,211,238,.16);color:#67e8f9;">&#128295;</span> Contractors</h3>
+    <p class="muted" style="margin:0 0 .75rem;font-size:.9rem;">Only the jobs you own. Submit a quote, upload repair proof, and invoice from the same screen.</p>
+    <ul>
+      <li>Quote &amp; invoice workflow</li>
+      <li>Trade-specific job list</li>
+      <li>Customer ratings</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Every repair, the same nine steps.</h3>
+  <div class="grid cols-3" style="gap:.75rem;">
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">01 &middot; Reported</div>
+      <div class="muted" style="font-size:.85rem;">Tenant describes the problem</div>
+    </div>
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">02 &middot; Assigned</div>
+      <div class="muted" style="font-size:.85rem;">Contractor chosen by the landlord</div>
+    </div>
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">03 &middot; Quote Pending</div>
+      <div class="muted" style="font-size:.85rem;">Cost agreed before work begins</div>
+    </div>
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">04 &middot; In Progress</div>
+      <div class="muted" style="font-size:.85rem;">Repair underway on site</div>
+    </div>
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">05 &middot; Completed</div>
+      <div class="muted" style="font-size:.85rem;">Photos &amp; proof uploaded</div>
+    </div>
+    <div class="stat" style="padding:.9rem 1rem;">
+      <div class="label">06 &middot; Paid</div>
+      <div class="muted" style="font-size:.85rem;">Invoice settled, file closed</div>
+    </div>
+  </div>
+</div>
+
+<section class="hero" style="margin-top:1.25rem;padding:3rem 2rem 2.75rem;">
+  <h1>Bring order to every repair.</h1>
+  <p>Set up your first property in two minutes.</p>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('register') }}">Create an account &rarr;</a>
+    <a class="btn btn-secondary" href="{{ url_for('login') }}">I already have one</a>
+  </div>
+</section>
+
+{% endif %}
+
+{% endblock %}

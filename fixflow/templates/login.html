@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Welcome back</h2>
+  <p class="sub">Sign in to FixFlow</p>
+  <form method="post">
+    <div class="form-row"><label>Email</label><input type="email" name="email" required autofocus></div>
+    <div class="form-row"><label>Password</label><input type="password" name="password" required></div>
+    <button type="submit">Sign in</button>
+  </form>
+  <p class="muted" style="text-align:center;margin:.9rem 0 0;font-size:.83rem;">
+    No account? <a href="{{ url_for('register') }}">Create one</a>
+  </p>
+</div>
+{% endblock %}

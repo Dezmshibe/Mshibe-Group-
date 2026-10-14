@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Something broke &middot; FixFlow{% endblock %}
+{% block content %}
+<div class="nf">
+  <div class="nf-eyebrow">Error 500</div>
+  <h1 class="nf-title">Something went <em>wrong</em>.</h1>
+  <p class="nf-lede">
+    The server hit an unexpected problem. This has been logged and will be looked at.
+    Try the action again, or return to a known page.
+  </p>
+  <div class="nf-actions">
+    {% if current_user %}
+      <a class="btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('index') }}">Back to home</a>
+    {% endif %}
+    <a class="btn btn-secondary" href="javascript:history.back()">Go back</a>
+  </div>
+  <div class="nf-mark">500</div>
+</div>
+{% endblock %}

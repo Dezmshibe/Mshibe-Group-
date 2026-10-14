@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <div class="sub">Jobs assigned to you</div>
+  </div>
+</div>
+
+{% for req in jobs %}
+  <div class="card" style="padding:1rem 1.15rem;">
+    <div style="display:flex;justify-content:space-between;gap:.9rem;flex-wrap:wrap;align-items:flex-start;">
+      <div style="min-width:0;flex:1;">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem;">
+          <a href="{{ url_for('request_detail', rid=req.id) }}" style="font-weight:600;font-size:.95rem;">{{ req.title }}</a>
+          <span class="status" data-status="{{ req.status }}">{{ req.status }}</span>
+          <span class="priority" data-priority="{{ req.priority }}">{{ req.priority }}</span>
+        </div>
+        <div class="soft" style="font-size:.78rem;">
+          #{{ req.id }} &middot; {{ req.property.name }}{% if req.unit %} / {{ req.unit.label }}{% endif %} &middot; {{ req.trade_category }}
+        </div>
+        <div class="muted" style="margin-top:.5rem;font-size:.86rem;">{{ req.description[:180] }}{% if req.description|length > 180 %}...{% endif %}</div>
+      </div>
+      <div class="right" style="min-width:140px;">
+        <div class="soft" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;">Invoice</div>
+        <div style="font-weight:700;font-size:1rem;margin-top:.15rem;">
+          {% if req.invoice_amount %}{{ req.invoice_amount|money }}{% else %}--{% endif %}
+        </div>
+        {% if req.invoice_paid %}<span class="badge" style="color:#4ade80;margin-top:.25rem;display:inline-flex;">paid</span>{% endif %}
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="card">
+    <div class="empty">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      No jobs assigned yet.
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

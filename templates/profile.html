@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Profile</h1>
+    <div class="sub">Account and security</div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="card">
+    <h3>Your details</h3>
+    <form method="post">
+      <input type="hidden" name="action" value="profile">
+      <div class="form-row"><label>Name</label><input type="text" name="name" value="{{ current_user.name }}" required></div>
+      <div class="form-row"><label>Email</label><input type="email" value="{{ current_user.email }}" disabled></div>
+      <div class="form-row"><label>Phone</label><input type="text" name="phone" value="{{ current_user.phone or '' }}"></div>
+      {% if current_user.role == 'contractor' %}
+        <div class="form-row"><label>Company</label><input type="text" name="company" value="{{ current_user.company or '' }}"></div>
+        <div class="form-row"><label>Trades</label><input type="text" name="trades" value="{{ current_user.trades or '' }}"></div>
+      {% endif %}
+      <button type="submit" class="btn-sm">Save changes</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Change password</h3>
+    <form method="post">
+      <input type="hidden" name="action" value="password">
+      <div class="form-row"><label>Current password</label><input type="password" name="current_password" required></div>
+      <div class="form-row"><label>New password</label><input type="password" name="new_password" required minlength="6"></div>
+      <button type="submit" class="btn-secondary btn-sm">Update password</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Calendar</h1>
+    <div class="sub">Requests grouped by day reported</div>
+  </div>
+</div>
+
+{% for date, reqs in by_date.items() %}
+  <div class="card">
+    <h3 style="display:flex;align-items:center;gap:.6rem;">
+      <span style="font-family:ui-monospace,monospace;font-size:.88rem;">{{ date }}</span>
+      <span class="badge">{{ reqs|length }} job{% if reqs|length != 1 %}s{% endif %}</span>
+    </h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Property</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead>
+      <tbody>
+        {% for r in reqs %}
+        <tr>
+          <td><a href="{{ url_for('request_detail', rid=r.id) }}" class="soft" style="font-family:ui-monospace,monospace;font-size:.8rem;">#{{ r.id }}</a></td>
+          <td style="font-size:.83rem;">{{ r.property.name }}{% if r.unit %} / {{ r.unit.label }}{% endif %}</td>
+          <td><div class="title">{{ r.title }}</div></td>
+          <td><span class="status" data-status="{{ r.status }}">{{ r.status }}</span></td>
+          <td><span class="priority" data-priority="{{ r.priority }}">{{ r.priority }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+{% else %}
+  <div class="card">
+    <div class="empty">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      Nothing scheduled.
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Not found &middot; FixFlow{% endblock %}
+{% block content %}
+<div class="nf">
+  <div class="nf-eyebrow">Error 404</div>
+  <h1 class="nf-title">Page not <em>found</em>.</h1>
+  <p class="nf-lede">
+    The page you were looking for has moved, been renamed, or never existed.
+    Nothing is broken — you just took a wrong turn.
+  </p>
+  <div class="nf-actions">
+    {% if current_user %}
+      <a class="btn" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+      <a class="btn btn-secondary" href="{{ url_for('calendar') }}">Open calendar</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('index') }}">Back to home</a>
+      <a class="btn btn-secondary" href="{{ url_for('login') }}">Sign in</a>
+    {% endif %}
+  </div>
+  <div class="nf-mark">404</div>
+</div>
+{% endblock %}

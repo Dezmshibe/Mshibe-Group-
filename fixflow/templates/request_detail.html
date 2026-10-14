@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+<p style="margin:.25rem 0 1rem;"><a href="{{ url_for('dashboard') }}" class="muted" style="font-size:.84rem;">&larr; Back to dashboard</a></p>
+
+<div class="req-hero">
+  <h1>{{ req.title }}</h1>
+  <div class="pills">
+    <span class="badge" style="font-family:ui-monospace,monospace;">#{{ req.id }}</span>
+    <span class="status" data-status="{{ req.status }}">{{ req.status }}</span>
+    <span class="priority" data-priority="{{ req.priority }}">{{ req.priority }}</span>
+    <span class="badge">{{ req.trade_category }}</span>
+  </div>
+</div>
+
+<div class="split">
+  <div>
+    <div class="card">
+      <h3>Details</h3>
+      <p style="margin-top:0;font-size:.9rem;color:var(--text-2);">{{ req.description }}</p>
+      <dl class="kv" style="margin-top:1rem;">
+        <dt>Property</dt><dd>{{ req.property.name }}{% if req.unit %} / {{ req.unit.label }}{% endif %}</dd>
+        <dt>Tenant</dt><dd>{{ req.tenant.name }}</dd>
+        <dt>Contractor</dt><dd>{{ req.contractor.name if req.contractor else '--' }}</dd>
+        <dt>Created</dt><dd>{{ req.created_at|dt }}</dd>
+        <dt>Updated</dt><dd>{{ req.updated_at|dt }}</dd>
+        {% if req.rating %}<dt>Rating</dt><dd><span class="stars">{{ '★' * req.rating }}</span>{% if req.rating_comment %} <span class="muted">&mdash; {{ req.rating_comment }}</span>{% endif %}</dd>{% endif %}
+      </dl>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Timeline</p>
+      <ul class="timeline">
+        {% for h in req.history %}
+          <li>
+            <strong>{{ h.to_status }}</strong>
+            <div class="meta">
+              {{ h.created_at|dt }}{% if h.changed_by %} &middot; {{ h.changed_by.name }}{% endif %}{% if h.note %} &middot; {{ h.note }}{% endif %}
+            </div>
+          </li>
+        {% else %}
+          <li><span class="muted">No history yet.</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Comments</p>
+      {% for c in req.comments %}
+        <div class="comment">
+          <div class="avatar">{{ c.author.name[:1]|upper }}</div>
+          <div class="body">
+            <div class="who">{{ c.author.name }} <span class="role">({{ c.author.role }})</span> <span class="when">{{ c.created_at|dt }}</span></div>
+            <div class="text">{{ c.body }}</div>
+          </div>
+        </div>
+      {% else %}
+        <p class="muted" style="font-size:.85rem;">No comments yet.</p>
+      {% endfor %}
+      <form method="post" action="{{ url_for('add_comment', rid=req.id) }}" style="margin-top:.85rem;">
+        <textarea name="body" placeholder="Write a comment..." required></textarea>
+        <div style="margin-top:.55rem;"><button type="submit" class="btn-sm">Post comment</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Attachments</p>
+      {% for a in req.attachments %}
+        <div class="file-row">
+          <span class="badge kind-{{ a.kind }}">{{ a.kind }}</span>
+          <span class="name"><a href="{{ url_for('download_upload', name=a.stored_name) }}" target="_blank">{{ a.filename }}</a></span>
+          <span class="meta">{{ a.uploader.name }} &middot; {{ a.created_at|dt }}</span>
+        </div>
+      {% else %}
+        <p class="muted" style="font-size:.85rem;">No files uploaded.</p>
+      {% endfor %}
+      <form method="post" action="{{ url_for('upload_attachment', rid=req.id) }}" enctype="multipart/form-data" class="inline-form" style="margin-top:.6rem;">
+        <input type="file" name="file" required>
+        <select name="kind">
+          <option value="photo">Photo</option>
+          <option value="quote">Quote</option>
+          <option value="invoice">Invoice</option>
+          <option value="other">Other</option>
+        </select>
+        <button type="submit" class="btn-sm">Upload</button>
+      </form>
+    </div>
+
+    {% if current_user.role == 'tenant' and current_user.id == req.tenant_id and req.status in ['Paid','Closed'] and not req.rating %}
+    <div class="card">
+      <h3>Rate this job</h3>
+      <form method="post" action="{{ url_for('rate_request', rid=req.id) }}">
+        <div class="form-row"><label>Rating</label>
+          <select name="rating">
+            <option value="5">★★★★★ Excellent</option>
+            <option value="4">★★★★ Good</option>
+            <option value="3">★★★ Okay</option>
+            <option value="2">★★ Poor</option>
+            <option value="1">★ Bad</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Comment (optional)</label><textarea name="rating_comment"></textarea></div>
+        <button type="submit" class="btn-sm">Submit rating</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <p class="section-title">Financials</p>
+      <div style="font-size:1.5rem;font-weight:700;letter-spacing:-.02em;">{{ req.invoice_amount|money if req.invoice_amount else '--' }}</div>
+      <div class="muted" style="font-size:.82rem;margin-top:.15rem;">
+        Quote: {{ req.quote_amount|money if req.quote_amount else '--' }}
+        {% if req.quote_approved %}<span class="badge" style="margin-left:.35rem;">approved</span>{% endif %}
+      </div>
+      {% if req.invoice_paid %}<div style="margin-top:.5rem;"><span class="badge kind-invoice">invoice paid</span></div>{% endif %}
+    </div>
+
+    {% if current_user.role == 'landlord' and req.property.landlord_id == current_user.id %}
+    <div class="card">
+      <p class="section-title">Landlord actions</p>
+      <form method="post" action="{{ url_for('assign_contractor', rid=req.id) }}" class="form-row">
+        <label>Assign contractor</label>
+        <select name="contractor_id">
+          <option value="">-- Unassigned --</option>
+          {% for c in contractors %}<option value="{{ c.id }}" {% if req.contractor_id == c.id %}selected{% endif %}>{{ c.name }}{% if c.company %} ({{ c.company }}){% endif %}</option>{% endfor %}
+        </select>
+        <div style="margin-top:.5rem;"><button type="submit" class="btn-sm">Assign</button></div>
+      </form>
+      <hr>
+      <form method="post" action="{{ url_for('update_request_status', rid=req.id) }}" class="form-row">
+        <label>Update status</label>
+        <select name="status">{% for s in STATUSES %}<option value="{{ s }}" {% if req.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <div style="margin-top:.5rem;"><button type="submit" class="btn-sm btn-secondary">Update</button></div>
+      </form>
+      {% if req.quote_amount and not req.quote_approved %}
+        <hr>
+        <form method="post" action="{{ url_for('approve_quote', rid=req.id) }}">
+          <button type="submit" class="btn-sm">Approve {{ req.quote_amount|money }}</button>
+        </form>
+      {% endif %}
+      {% if req.invoice_amount and not req.invoice_paid %}
+        <hr>
+        <form method="post" action="{{ url_for('mark_paid', rid=req.id) }}">
+          <button type="submit" class="btn-sm">Mark paid</button>
+        </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if current_user.role == 'contractor' and req.contractor_id == current_user.id %}
+    <div class="card">
+      <p class="section-title">Job actions</p>
+      <form method="post" action="{{ url_for('contractor_update_job', rid=req.id) }}">
+        <div class="form-row"><label>Status</label>
+          <select name="status">{% for s in STATUSES %}<option value="{{ s }}" {% if req.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        </div>
+        <div class="form-row"><label>Quote (R)</label><input type="number" step="0.01" name="quote_amount" value="{{ req.quote_amount or '' }}"></div>
+        <div class="form-row"><label>Invoice (R)</label><input type="number" step="0.01" name="invoice_amount" value="{{ req.invoice_amount or '' }}"></div>
+        <button type="submit" class="btn-sm">Save job</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if current_user.role == 'tenant' and req.tenant_id == current_user.id %}
+    <div class="card">
+      <p class="section-title">Tenant actions</p>
+      {% if req.status == 'Reported' %}
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('edit_request', rid=req.id) }}">Edit request</a>
+      {% endif %}
+      {% if req.status in ['Reported', 'Assigned'] %}
+        <form method="post" action="{{ url_for('cancel_request', rid=req.id) }}"
+              onsubmit="return confirm('Cancel this request?');" style="margin-top:.5rem;">
+          <button type="submit" class="btn-danger btn-sm">Cancel request</button>
+        </form>
+      {% endif %}
+      {% if req.status in ['Paid', 'Closed'] %}
+        <form method="post" action="{{ url_for('duplicate_request', rid=req.id) }}" style="margin-top:.5rem;">
+          <button type="submit" class="btn-secondary btn-sm">Report again</button>
+        </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if req.status == 'Closed' and (current_user.role == 'landlord' or current_user.role == 'tenant') %}
+    <div class="card">
+      <p class="section-title">Reopen</p>
+      <form method="post" action="{{ url_for('reopen_request', rid=req.id) }}"
+            onsubmit="return confirm('Reopen this request?');">
+        <button type="submit" class="btn-secondary btn-sm">Reopen request</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
