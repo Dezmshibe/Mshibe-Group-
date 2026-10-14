@@ -1,4 +1,4 @@
-﻿"""Mshibe Group - multi-service platform.
+"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Food ordering (delivery or pickup)
@@ -39,10 +39,30 @@ from security import register_security, rate_limit, login_allowed, record_login_
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mshibe-dev-secret-change-me")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", "sqlite:///mshibe.db"
-)
+
+# Database URL — Supabase Postgres in production, SQLite fallback locally.
+# Render's free tier wipes its disk on every deploy, so SQLite loses data.
+# Supabase persists it.
+db_url = os.environ.get("DATABASE_URL", "sqlite:///mshibe.db")
+
+# Supabase hands out postgres://... URLs. SQLAlchemy 2.x needs the driver
+# specified explicitly, so pin it to psycopg2.
+for _prefix in ("postgres://", "postgresql://"):
+    if db_url.startswith(_prefix):
+        db_url = "postgresql+psycopg2://" + db_url[len(_prefix):]
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Connection pooling only matters for Postgres. These settings keep connections
+# healthy behind Supabase's pooler, which closes idle connections after ~5 min.
+if db_url.startswith("postgresql"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,    # validate connections before use
+        "pool_recycle": 280,      # recycle before Supabase's idle timeout
+        "pool_size": 3,
+        "max_overflow": 2,
+    }
 
 db.init_app(app)
 register_security(app)
