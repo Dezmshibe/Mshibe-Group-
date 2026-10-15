@@ -82,14 +82,14 @@ def register_security(app):
             "default-src 'self'; "
             "img-src 'self' data: https:; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; "
             "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-            "connect-src 'self'; "
+            "connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; "
             "frame-ancestors 'self'; "
             "base-uri 'self'; "
             "form-action 'self'"
         )
-        # HSTS only makes sense over HTTPS — safe to always send.
+        # HSTS only makes sense over HTTPS â€” safe to always send.
         resp.headers.setdefault(
             "Strict-Transport-Security",
             "max-age=31536000; includeSubDomains"
@@ -99,7 +99,7 @@ def register_security(app):
     # ---------------------------------------------------------------------
     # Prompt-injection + abuse guard on the AI endpoint
     # ---------------------------------------------------------------------
-    # The AI endpoint is public — anyone can call it. This caps damage from
+    # The AI endpoint is public â€” anyone can call it. This caps damage from
     # someone trying to drain your Groq quota or abuse the prompt.
     # See ai_receptionist.py for the message sanitization.
     return app

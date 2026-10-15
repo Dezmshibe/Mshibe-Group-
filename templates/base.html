@@ -46,6 +46,17 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
   {% block head_extra %}{% endblock %}
+  <!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FQP5ZZMTT4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-FQP5ZZMTT4', {
+    anonymize_ip: true,
+    cookie_flags: 'SameSite=None;Secure'
+  });
+</script>
 </head>
 <body>
 
