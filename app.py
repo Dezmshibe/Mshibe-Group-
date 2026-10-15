@@ -1,4 +1,4 @@
-﻿"""Mshibe Group - multi-service platform.
+"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Appointment booking
@@ -480,7 +480,9 @@ def api_slots():
 # ---------------------------------------------------------------------------
 # Admin auth
 # ---------------------------------------------------------------------------
-@app.route("/admin/login", methods=["GET", "POST"])
+SECRET_ADMIN_PATH = "donda"
+
+@app.route(f"/{SECRET_ADMIN_PATH}/login", methods=["GET", "POST"])
 @rate_limit("login", 10, 300)
 def admin_login():
     settings = get_settings()
@@ -516,7 +518,7 @@ def admin_login():
     return render_template("admin/login.html")
 
 
-@app.route("/admin/logout")
+@app.route(f"/{SECRET_ADMIN_PATH}/logout")
 def admin_logout():
     session.pop("admin_logged_in", None)
     flash("Logged out.", "success")
@@ -526,7 +528,7 @@ def admin_logout():
 # ---------------------------------------------------------------------------
 # Admin dashboard
 # ---------------------------------------------------------------------------
-@app.route("/admin")
+@app.route(f"/{SECRET_ADMIN_PATH}")
 @admin_required
 def admin_dashboard():
     today_str = date_cls.today().strftime("%Y-%m-%d")
@@ -551,7 +553,7 @@ def admin_dashboard():
 # ---------------------------------------------------------------------------
 # Admin: appointments
 # ---------------------------------------------------------------------------
-@app.route("/admin/appointments")
+@app.route(f"/{SECRET_ADMIN_PATH}/appointments")
 @admin_required
 def admin_appointments():
     status_filter = request.args.get("status", "")
@@ -572,7 +574,7 @@ def admin_appointments():
     )
 
 
-@app.route("/admin/appointments/<int:appt_id>/status", methods=["POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/appointments/<int:appt_id>/status", methods=["POST"])
 @admin_required
 def admin_appt_status(appt_id):
     appt = db.session.get(Appointment, appt_id)
@@ -586,7 +588,7 @@ def admin_appt_status(appt_id):
     return redirect(request.referrer or url_for("admin_appointments"))
 
 
-@app.route("/admin/appointments/<int:appt_id>/delete", methods=["POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/appointments/<int:appt_id>/delete", methods=["POST"])
 @admin_required
 def admin_appt_delete(appt_id):
     appt = db.session.get(Appointment, appt_id)
@@ -601,14 +603,14 @@ def admin_appt_delete(appt_id):
 # ---------------------------------------------------------------------------
 # Admin: services
 # ---------------------------------------------------------------------------
-@app.route("/admin/services")
+@app.route(f"/{SECRET_ADMIN_PATH}/services")
 @admin_required
 def admin_services():
     services = Service.query.order_by(Service.name).all()
     return render_template("admin/services.html", services=services)
 
 
-@app.route("/admin/services/new", methods=["GET", "POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/services/new", methods=["GET", "POST"])
 @admin_required
 def admin_service_new():
     if request.method == "POST":
@@ -629,7 +631,7 @@ def admin_service_new():
     return render_template("admin/service_form.html", service=None)
 
 
-@app.route("/admin/services/<int:service_id>/edit", methods=["GET", "POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/services/<int:service_id>/edit", methods=["GET", "POST"])
 @admin_required
 def admin_service_edit(service_id):
     service = db.session.get(Service, service_id)
@@ -650,7 +652,7 @@ def admin_service_edit(service_id):
     return render_template("admin/service_form.html", service=service)
 
 
-@app.route("/admin/services/<int:service_id>/delete", methods=["POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/services/<int:service_id>/delete", methods=["POST"])
 @admin_required
 def admin_service_delete(service_id):
     service = db.session.get(Service, service_id)
@@ -670,7 +672,7 @@ def admin_service_delete(service_id):
 # ---------------------------------------------------------------------------
 # Admin: contact messages
 # ---------------------------------------------------------------------------
-@app.route("/admin/messages")
+@app.route(f"/{SECRET_ADMIN_PATH}/messages")
 @admin_required
 def admin_messages():
     category_filter = request.args.get("category", "")
@@ -691,7 +693,7 @@ def admin_messages():
     )
 
 
-@app.route("/admin/messages/<int:message_id>/read", methods=["POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/messages/<int:message_id>/read", methods=["POST"])
 @admin_required
 def admin_message_read(message_id):
     contact_message = db.session.get(ContactMessage, message_id)
@@ -702,7 +704,7 @@ def admin_message_read(message_id):
     return redirect(request.referrer or url_for("admin_messages"))
 
 
-@app.route("/admin/messages/<int:message_id>/delete", methods=["POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/messages/<int:message_id>/delete", methods=["POST"])
 @admin_required
 def admin_message_delete(message_id):
     contact_message = db.session.get(ContactMessage, message_id)
@@ -717,7 +719,7 @@ def admin_message_delete(message_id):
 # ---------------------------------------------------------------------------
 # Admin: settings
 # ---------------------------------------------------------------------------
-@app.route("/admin/settings", methods=["GET", "POST"])
+@app.route(f"/{SECRET_ADMIN_PATH}/settings", methods=["GET", "POST"])
 @admin_required
 def admin_settings():
     settings = get_settings()

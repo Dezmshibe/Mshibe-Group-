@@ -89,10 +89,6 @@
           </a>
         </li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('contact') }}">Contact</a></li>
-        {% if session.get('admin_logged_in') %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_logout') }}">Logout</a></li>
-        {% endif %}
       </ul>
     </div>
   </div>
@@ -159,7 +155,6 @@
     </div>
     <div class="footer-bottom">
       <span>&copy; {{ current_year }} {{ settings.company_name }}. All rights reserved.</span>
-      <a href="{{ url_for('admin_login') }}">Admin</a>
     </div>
   </div>
 </footer>
