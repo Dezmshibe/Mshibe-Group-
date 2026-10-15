@@ -1,4 +1,4 @@
-"""Mshibe Group - multi-service platform.
+﻿"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Appointment booking
@@ -101,8 +101,8 @@ def get_settings() -> SiteSetting:
         db.session.commit()
     else:
         changed = False
-        if s.email != "MshibeGroup@gmail.com":
-            s.email = "MshibeGroup@gmail.com"
+        if s.email != "mshibegroup@gmail.com":
+            s.email = "mshibegroup@gmail.com"
             changed = True
         if s.phone:
             s.phone = ""
