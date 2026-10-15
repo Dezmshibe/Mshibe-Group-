@@ -1,4 +1,4 @@
-"""Mshibe Group - multi-service platform.
+﻿"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Food ordering (delivery or pickup)
@@ -58,10 +58,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # healthy behind Supabase's pooler, which closes idle connections after ~5 min.
 if db_url.startswith("postgresql"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,    # validate connections before use
-        "pool_recycle": 280,      # recycle before Supabase's idle timeout
-        "pool_size": 3,
-        "max_overflow": 2,
+        "pool_pre_ping": True,
+        "pool_recycle": 280,
+        "pool_size": 1,       # Reduced from 3
+        "max_overflow": 0,    # Disable overflow entirely
     }
 
 db.init_app(app)
