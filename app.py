@@ -1,4 +1,4 @@
-﻿"""Mshibe Group - multi-service platform.
+"""Mshibe Group - multi-service platform.
 
 Services offered:
   * Appointment booking
@@ -225,12 +225,22 @@ def welcome():
 
 @app.route("/")
 def index():
+    # Check if the visitor has already seen the welcome page
+    if not request.cookies.get("seen_welcome"):
+        return redirect(url_for("welcome"))
+
     services = Service.query.filter_by(active=True).limit(3).all()
     return render_template(
         "index.html",
         services=services,
     )
 
+@app.route("/welcome/skip")
+def welcome_skip():
+    # Set a cookie that lasts for 30 days, then send them to the homepage
+    resp = redirect(url_for("index"))
+    resp.set_cookie("seen_welcome", "1", max_age=60 * 60 * 24 * 30)
+    return resp
 
 @app.route("/demo")
 def ai_demo():
@@ -265,6 +275,7 @@ CORPORATE_SERVICES = {
             ("Product Development", "From early concept to working product, we turn ideas into something people can use."),
         ],
     },
+    
     "media-marketing": {
         "number": "02",
         "title": "Media & Marketing",
@@ -294,8 +305,74 @@ CORPORATE_SERVICES = {
         ],
     },
 }
-
-
+PORTFOLIO = {
+    "chowza": {
+        "number": "01",
+        "title": "Chowza",
+        "category": "Commerce platform",
+        "tagline": "A streamlined food ordering experience.",
+        "hero_copy": "From menu to doorstep — a food ordering platform built for local businesses.",
+        "year": "2025",
+        "status": "Live",
+        # url_endpoint removed because /food no longer exists
+        "challenge": "Local food businesses were losing customers to complex ordering systems and slow checkout flows. We needed an experience that felt immediate and trustworthy from the first tap.",
+        "approach": [
+            "Designed a linear ordering flow: browse menu → add to cart → review → pay. No hidden steps, no confusion.",
+            "Built a real-time cart that persists across pages, so customers can browse without losing their order.",
+            "Added a clear confirmation page with the order reference, so customers know their order was received.",
+        ],
+        "results": [
+            ("Category", "Food ordering"),
+            ("Built in", "2025"),
+            ("Status", "Live"),
+        ],
+        "stack": ["Flask", "Supabase", "Stripe-ready", "Mobile-first"],
+    },
+    "appoint": {
+        "number": "02",
+        "title": "Appoint",
+        "category": "Service booking",
+        "tagline": "Appointment booking made simple.",
+        "hero_copy": "A booking platform that lets customers discover a service, choose a time, and confirm — all without leaving the page.",
+        "year": "2025",
+        "status": "Live",
+        "url_endpoint": "appointment_platform", # This exists, so it's safe
+        "challenge": "Appointment-based businesses were losing bookings to complicated calendars and back-and-forth calls. The booking process was killing conversions.",
+        "approach": [
+            "Replaced phone bookings with a live availability calendar that updates in real time.",
+            "Built a single-page booking form — service, date, time, details — with clear validation at each step.",
+            "Sent confirmation references so customers have proof of booking and can cancel if needed.",
+        ],
+        "results": [
+            ("Category", "Service booking"),
+            ("Built in", "2025"),
+            ("Status", "Live"),
+        ],
+        "stack": ["Flask", "Supabase", "Real-time slots", "Mobile-first"],
+    },
+    "fixflow": {
+        "number": "03",
+        "title": "FixFlow",
+        "category": "Property maintenance",
+        "tagline": "One shared record for every repair.",
+        "hero_copy": "A platform that lets landlords, tenants and contractors track repairs from first report to final invoice.",
+        "year": "2026",
+        "status": "Live",
+        "url_endpoint": "contact", # Changed to contact since fixflow_platform isn't a route here
+        "challenge": "Repairs get lost in WhatsApp threads and forwarded emails. Nobody knows the current status of a job. Contractors invoice weeks later through a different channel.",
+        "approach": [
+            "Built a nine-stage workflow that tracks every repair from Report → Closed.",
+            "Created three separate dashboards — landlord, tenant, contractor — that all read from the same record.",
+            "Added analytics showing spend by trade, property and month, so landlords can spot problems before they grow.",
+        ],
+        "results": [
+            ("Category", "Property maintenance"),
+            ("Built in", "2026"),
+            ("Status", "Live"),
+        ],
+        "stack": ["Flask", "Supabase", "Chart.js", "Role-based access"],
+    },
+}
 @app.route("/services/<slug>")
 def corporate_service(slug):
     service = CORPORATE_SERVICES.get(slug)
@@ -356,6 +433,17 @@ def terms():
 def privacy():
     return render_template("privacy.html")
 
+@app.route("/portfolio")
+def portfolio():
+    return render_template("portfolio.html", projects=PORTFOLIO)
+
+
+@app.route("/portfolio/<slug>")
+def portfolio_item(slug):
+    project = PORTFOLIO.get(slug)
+    if not project:
+        abort(404)
+    return render_template("portfolio_item.html", project=project, slug=slug)
 
 # ---------------------------------------------------------------------------
 # Appointments
@@ -819,7 +907,6 @@ def _absolute(path: str) -> str:
         root = "https://" + root[len("http://"):]
     return root + path
 
-
 @app.route("/sitemap.xml")
 def sitemap():
     """Generate a clean sitemap containing only important public pages."""
@@ -834,11 +921,20 @@ def sitemap():
         ("/welcome",       "monthly", "0.5"),
         ("/terms",         "yearly",  "0.3"),
         ("/privacy",       "yearly",  "0.3"),
+        
+        # --- PORTFOLIO ADDED HERE ---
+        ("/portfolio",     "monthly", "0.8"),
     ]
 
+    # Corporate service pages
     for slug in CORPORATE_SERVICES:
         pages.append((f"/services/{slug}", "monthly", "0.8"))
 
+    # --- INDIVIDUAL PORTFOLIO PAGES ADDED HERE ---
+    for slug in PORTFOLIO:
+        pages.append((f"/portfolio/{slug}", "monthly", "0.7"))
+
+    # Active appointment services
     for service in Service.query.filter_by(active=True).order_by(Service.id).all():
         pages.append((f"/appointments/service/{service.id}", "monthly", "0.7"))
 
@@ -866,7 +962,6 @@ def sitemap():
     response.headers["Content-Length"] = str(len(xml_body.encode("utf-8")))
     response.headers["Cache-Control"] = "public, max-age=3600"
     return response
-
 
 @app.route("/robots.txt")
 def robots():
