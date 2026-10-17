@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% block title %}Portfolio — {{ settings.company_name }}{% endblock %}
+{% block og_description %}A selection of products, platforms and digital experiences built by Mshibe Group.{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     PORTFOLIO HERO
+     ============================================================ -->
+<section class="platform-hero">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <p class="eyebrow dark">
+      MSHIBE GROUP <span></span> PORTFOLIO
+    </p>
+
+    <div class="platform-hero-grid">
+
+      <div>
+
+        <h1>
+          Things we've<br>
+          <em>shipped.</em>
+        </h1>
+
+        <p class="platform-lead">
+          We build digital products, websites, platforms and
+          business systems designed around real-world problems.
+        </p>
+
+      </div>
+
+      <div class="platform-number">
+        →
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     INTRO
+     ============================================================ -->
+<section class="platform-intro">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="row g-5">
+
+      <div class="col-lg-4">
+
+        <p class="eyebrow dark">
+          WHAT WE DO
+        </p>
+
+        <h2>
+          We don't just<br>
+          <span>make websites.</span>
+        </h2>
+
+      </div>
+
+      <div class="col-lg-8">
+
+        <p class="section-copy">
+          Mshibe Group works across technology, digital experiences,
+          media and business solutions. Each project starts with
+          understanding the problem before deciding what should be built.
+        </p>
+
+        <p class="section-copy" style="margin-top:1.5rem">
+          From customer-facing websites to operational platforms,
+          we focus on creating digital experiences that have a
+          purpose beyond simply looking good.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PROJECTS
+     ============================================================ -->
+<section class="platform-features portfolio-projects">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="section-heading-row">
+
+      <div>
+
+        <p class="eyebrow dark">
+          SELECTED WORK
+        </p>
+
+        <h2>
+          Built for<br>
+          <em>real problems.</em>
+        </h2>
+
+      </div>
+
+      <p>
+        Explore the projects to see the problem, approach,
+        technology and outcome behind each build.
+      </p>
+
+    </div>
+
+
+    <div class="business-grid">
+
+      {% for slug, project in projects.items() %}
+
+      <a href="{{ url_for('portfolio_item', slug=slug) }}"
+         class="business-card
+         {{ 'business-card-dark'
+            if loop.index % 3 == 2
+            else 'business-card-large'
+            if loop.index % 3 == 1
+            else 'business-card-accent' }}">
+
+        <span class="card-number">
+          {{ project.number }} / {{ project.year }}
+        </span>
+
+        <div>
+
+          <span class="business-icon">
+            <i class="bi bi-box"></i>
+          </span>
+
+          <h3>
+            {{ project.title }}
+          </h3>
+
+          <p>
+            {{ project.tagline }}
+          </p>
+
+          <small style="
+            display:block;
+            margin-top:1.2rem;
+            opacity:.7;
+            line-height:1.6;
+          ">
+            {{ project.category }}
+          </small>
+
+        </div>
+
+        <span style="
+          font-size:.82rem;
+          font-weight:800;
+          display:flex;
+          align-items:center;
+          gap:.5rem;
+        ">
+          Read the case study
+          <i class="bi bi-arrow-up-right"></i>
+        </span>
+
+      </a>
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     CAPABILITIES
+     ============================================================ -->
+<section class="platform-intro">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="row g-5">
+
+      <div class="col-lg-4">
+
+        <p class="eyebrow dark">
+          CAPABILITIES
+        </p>
+
+        <h2>
+          What we<br>
+          <span>build.</span>
+        </h2>
+
+      </div>
+
+      <div class="col-lg-8">
+
+        <div class="capability-list">
+
+          <div>
+            <span>01</span>
+            <strong>Websites & Digital Experiences</strong>
+            <p>
+              Modern websites designed to communicate clearly,
+              build credibility and turn visitors into customers.
+            </p>
+          </div>
+
+          <div>
+            <span>02</span>
+            <strong>Business Platforms</strong>
+            <p>
+              Custom platforms designed around the way a business
+              actually operates.
+            </p>
+          </div>
+
+          <div>
+            <span>03</span>
+            <strong>Automation & Technology</strong>
+            <p>
+              Digital systems that reduce repetitive work and
+              connect different parts of a business.
+            </p>
+          </div>
+
+          <div>
+            <span>04</span>
+            <strong>Brand & Digital Strategy</strong>
+            <p>
+              Digital direction that connects brand, audience,
+              technology and business objectives.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PROCESS
+     ============================================================ -->
+<section class="platform-features">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="section-heading-row">
+
+      <div>
+
+        <p class="eyebrow">
+          OUR PROCESS
+        </p>
+
+        <h2>
+          Think.<br>
+          Build.<br>
+          <em>Ship.</em>
+        </h2>
+
+      </div>
+
+      <p>
+        A simple process designed to keep projects focused
+        and moving from idea to something people can actually use.
+      </p>
+
+    </div>
+
+
+    <div class="process-grid">
+
+      <div>
+        <span>01</span>
+        <h3>Understand</h3>
+        <p>
+          We start with the business, the audience and the problem.
+        </p>
+      </div>
+
+      <div>
+        <span>02</span>
+        <h3>Design</h3>
+        <p>
+          We turn the strategy into an experience people can understand.
+        </p>
+      </div>
+
+           <div>
+        <span>03</span>
+        <h3>Build</h3>
+        <p>
+          We turn the plan into something real, functional and ready to use.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="platform-cta">
+  <div class="container-fluid px-4 px-lg-5">
+    <p class="eyebrow">NEXT PROJECT</p>
+    <h2>Have something<br><em>to build?</em></h2>
+    <a href="{{ url_for('contact') }}" class="hero-button hero-button-light">
+      Start a conversation <i class="bi bi-arrow-up-right"></i>
+    </a>
+  </div>
+</section>
+
+{% endblock %}

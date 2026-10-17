@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} — {{ settings.company_name }}{% endblock %}
+{% block og_description %}{{ project.tagline }}{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     CASE STUDY HERO
+     ============================================================ -->
+<section class="platform-hero case-study-hero">
+  <div class="container-fluid px-4 px-lg-5">
+
+    <p class="eyebrow dark">
+      MSHIBE GROUP <span></span> {{ project.category|upper }}
+    </p>
+
+    <div class="platform-hero-grid">
+      <div>
+
+        <div class="mb-3">
+          <span class="badge-soft">
+            {{ project.year }} · {{ project.status }}
+          </span>
+        </div>
+
+        <h1>
+          {{ project.title }}<br>
+          <em>{{ project.tagline }}</em>
+        </h1>
+
+        <p class="platform-lead">
+          {{ project.hero_copy }}
+        </p>
+
+        <div class="hero-actions">
+
+          {% if project.get('url_endpoint') %}
+          <a href="{{ url_for(project.url_endpoint) }}"
+             class="hero-button hero-button-dark">
+            See it live
+            <i class="bi bi-arrow-up-right"></i>
+          </a>
+          {% endif %}
+
+          <a href="{{ url_for('portfolio') }}"
+             class="hero-text-link">
+            Back to portfolio
+            <i class="bi bi-arrow-left"></i>
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="platform-number">
+        {{ project.number }}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PROJECT OVERVIEW
+     ============================================================ -->
+<section class="platform-intro case-overview">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="row g-5">
+
+      <div class="col-lg-4">
+
+        <p class="eyebrow dark">
+          PROJECT OVERVIEW
+        </p>
+
+        <h2>
+          More than<br>
+          <span>a website.</span>
+        </h2>
+
+      </div>
+
+      <div class="col-lg-8">
+
+        <p class="section-copy">
+          {{ project.hero_copy }}
+        </p>
+
+        <div class="case-meta-grid">
+
+          <div class="case-meta">
+            <span>PROJECT</span>
+            <strong>{{ project.title }}</strong>
+          </div>
+
+          <div class="case-meta">
+            <span>CATEGORY</span>
+            <strong>{{ project.category }}</strong>
+          </div>
+
+          <div class="case-meta">
+            <span>YEAR</span>
+            <strong>{{ project.year }}</strong>
+          </div>
+
+          <div class="case-meta">
+            <span>STATUS</span>
+            <strong>{{ project.status }}</strong>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     THE CHALLENGE
+     ============================================================ -->
+<section class="platform-intro">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="row g-5 align-items-start">
+
+      <div class="col-lg-4">
+
+        <p class="eyebrow dark">
+          01 <span></span> THE CHALLENGE
+        </p>
+
+        <h2>
+          What was<br>
+          <span>broken.</span>
+        </h2>
+
+      </div>
+
+      <div class="col-lg-8">
+
+        <p class="section-copy">
+          {{ project.challenge }}
+        </p>
+
+        <div class="challenge-box">
+
+          <div>
+            <i class="bi bi-exclamation-circle"></i>
+          </div>
+
+          <div>
+            <span>THE PROBLEM</span>
+
+            <p>
+              We identified the gap between what the business
+              needed and what its existing digital experience
+              was capable of delivering.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     THE APPROACH
+     ============================================================ -->
+<section class="platform-features">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="section-heading-row">
+
+      <div>
+
+        <p class="eyebrow dark">
+          02 <span></span> THE APPROACH
+        </p>
+
+        <h2>
+          How we<br>
+          <em>solved it.</em>
+        </h2>
+
+      </div>
+
+      <p>
+        Strategy, design, development and implementation were
+        treated as one connected process.
+      </p>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+      {% for step in project.approach %}
+
+      <article>
+
+        <span>
+          {{ '%02d'|format(loop.index) }}
+        </span>
+
+        <i class="bi bi-check2-square"></i>
+
+        <p style="
+          margin-top:2.4rem;
+          font-size:.92rem;
+          line-height:1.7;
+        ">
+          {{ step }}
+        </p>
+
+      </article>
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     HOW WE BUILT IT
+     ============================================================ -->
+<section class="platform-intro">
+
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="row g-5">
+
+      <div class="col-lg-4">
+
+        <p class="eyebrow dark">
+          03 <span></span> BUILD
+        </p>
+
+        <h2>
+          From idea<br>
+          <span>to execution.</span>
+        </h2>
+
+      </div>
+
+      <div class="col-lg-8">
+
+        <p class="section-copy">
+          The project was designed around practical business
+          requirements rather than technology for technology's sake.
+          Every component had a job to do.
+        </p>
+
+                <div class="build-process">
+          <div class="process-row">
+            <span>01</span>
+            <div>
+              <strong>Database & Backend</strong>
+              <p>Setting up the data structure and business logic to support the experience.</p>
+            </div>
+          </div>
+          <div class="process-row">
+            <span>02</span>
+            <div>
+              <strong>Frontend & UI</strong>
+              <p>Building the interface to be fast, responsive and easy to use.</p>
+            </div>
+          </div>
+          <div class="process-row">
+            <span>03</span>
+            <div>
+              <strong>Testing & Launch</strong>
+              <p>Checking edge cases, testing on mobile devices, and deploying to production.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STACK & RESULTS
+     ============================================================ -->
+<section class="platform-features">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-5">
+      <div class="col-lg-4">
+        <p class="eyebrow dark">04 <span></span> THE RESULT</p>
+        <h2>Where it<br><em>landed.</em></h2>
+      </div>
+      <div class="col-lg-8">
+        <div class="row g-3">
+          {% for label, value in project.results %}
+          <div class="col-md-4">
+            <div class="stat-card" style="background:#fff;border:1px solid var(--line);padding:1.5rem;border-radius:12px">
+              <span style="font-size:.68rem;text-transform:uppercase;letter-spacing:.16em;color:#777;font-weight:800">{{ label }}</span>
+              <strong style="display:block;font-size:1.6rem;margin-top:.5rem;font-weight:900">{{ value }}</strong>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        
+        <div style="margin-top:2rem">
+          <p class="eyebrow dark" style="margin-bottom:1rem">TECH STACK</p>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            {% for tech in project.stack %}
+            <span class="badge-soft">{{ tech }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform-cta">
+ <a href="{{ url_for('contact') }}" class="hero-button" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.5);">
+  Start a conversation <i class="bi bi-arrow-up-right"></i>
+</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
